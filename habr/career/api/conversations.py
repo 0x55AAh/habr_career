@@ -1,6 +1,17 @@
-from typing import Any
+from typing import Any, TypedDict, Unpack
+
+from requests.status_codes import codes
 
 from habr.career.utils import Pagination, QueryParams, ComplainReason
+
+
+class TemplateParams(TypedDict):
+    title: str
+    body: str
+
+
+class TemplateUpdateParams(TemplateParams, total=False):
+    pass
 
 
 # noinspection PyUnresolvedReferences
@@ -11,20 +22,21 @@ class HABRCareerConversationsMixin:
             page: int = Pagination.INIT_PAGE,
     ) -> dict[str, Any]:
         """
+        Get all conversations.
 
         :param search:
         :param page:
         :return: Example:
             {
                 "conversationObjects": {
-                    "marbulaewa": {
-                        "fullName": "Марина Булаева",
+                    "user123": {
+                        "fullName": "Виктория Талалаева",
                         "avatarUrl": "https://habrastorage.org/getpro/moikrug/uploads/user/100/046/467/3/avatar/medium_14bfaf11c39a19f518d861da2af9626a.jpg",
-                        "login": "marbulaewa",
+                        "login": "user123",
                         "subtitle": "Королев · Wanted: Profi · IT-рекрутер",
                         "conversation": {
                             "lastMessage": {
-                                "body": "<p>Добрый день! Владимир, тогда, к сожалению, не получится отправить ваше резюме, т.к. в компании оформление только по ТК РФ.<p>",
+                                "body": "<p>Добрый день!<p>",
                                 "createdAt": 1698073349923,
                                 "isMine": False,
                                 "isRead": True
@@ -39,7 +51,7 @@ class HABRCareerConversationsMixin:
                     ...
                 },
                 "conversationIds": [
-                    "marbulaewa",
+                    "user123",
                     ...
                 ],
                 "meta": {
@@ -61,12 +73,13 @@ class HABRCareerConversationsMixin:
 
     def get_conversation(self, username: str) -> dict[str, Any]:
         """
+        Get or create conversation with a specified user.
 
         :param username: User alias
         :return: Example:
             {
                 "theme": "",
-                "userId": "devakant",
+                "userId": "user123",
                 "hasNewMessage": False,
                 "banned": {
                     "status": False,
@@ -77,8 +90,8 @@ class HABRCareerConversationsMixin:
                         {
                             "id": 560968181,
                             "createdAt": 1610697438976,
-                            "body": "<p>Добрый день! Я сейчас ищу Python разработчика удаленно. Рассматриваете предложения о работе?<p>",
-                            "authorId": "elenpavlova",
+                            "body": "<p>Добрый день!<p>",
+                            "authorId": "user123",
                             "isMine": False
                         },
                         ...
@@ -100,6 +113,7 @@ class HABRCareerConversationsMixin:
 
     def get_messages(self, username: str) -> dict[str, Any]:
         """
+        Get all messages related to a conversation with a specified user.
 
         :param username: User alias
         :return: Example:
@@ -108,8 +122,8 @@ class HABRCareerConversationsMixin:
                     {
                         "id": 560968181,
                         "createdAt": 1610697438976,
-                        "body": "<p>Добрый день! Я сейчас ищу Python разработчика удаленно. Рассматриваете предложения о работе?</p>",
-                        "authorId": "elenpavlova",
+                        "body": "<p>Рассматриваете предложения о работе?</p>",
+                        "authorId": "user123",
                         "isMine": False
                     },
                     ...
@@ -128,6 +142,7 @@ class HABRCareerConversationsMixin:
 
     def get_templates(self) -> dict[str, Any]:
         """
+        Get all created templates.
 
         :return: Examples:
             {
@@ -141,62 +156,137 @@ class HABRCareerConversationsMixin:
         path = "frontend/conversations/templates"
         return self.get(path, auth_required=True)
 
-    def create_template(self, title: str, body: str) -> dict[str, Any]:
-        """
+    # def create_template(
+    #         self,
+    #         **data: Unpack[TemplateParams]
+    # ) -> dict[str, Any]:
+    #     """
+    #     Create new template with specified attributes.
+    #
+    #     :param data:
+    #     :return:
+    #     """
+    #     # TODO: 500 Internal Server Error
+    #     # TODO: This creates new template with requested parameters.
+    #     # TODO: Failing when getting detail of a new created template.
+    #     return self.post(
+    #         "frontend/conversations/templates",
+    #         json=data,
+    #         auth_required=True,
+    #     )
 
-        :param title:
-        :param body:
+    def create_template(
+            self,
+            **data: Unpack[TemplateParams]
+    ) -> dict[str, Any]:
+        """
+        Create new template with specified attributes.
+        TODO: Real API endpoint raise error, so requesting not API
+              endpoint here.
+
+        :param data:
         :return:
         """
-        # TODO: 500 Internal Server Error
-        # TODO: This creates new template with requested parameters.
-        # TODO: Failing when getting detail of a new created template.
-        return self.post(
-            path="frontend/conversations/templates",
+
+        response = self.post(
+            "conversation_templates",
+            base_url="https://career.habr.com/",
+            data={
+                f"conversation_template[{k}]": v
+                for k, v in data.items()
+            },
             auth_required=True,
-            json={"title": title, "body": body},
-            headers={"X-Csrf-Token": self.csrf_token},
         )
+        if response.ok:
+            return {"success": True}
+        return {"error": "Unknown error"}
+
+    # def delete_template(self, id_: int) -> dict[str, Any]:
+    #     """
+    #     Remove template.
+    #
+    #     :param id_:
+    #     :return:
+    #     """
+    #     # TODO: 500 Internal Server Error
+    #     return self.delete(
+    #         f"frontend/conversations/templates/{id_}",
+    #         auth_required=True,
+    #     )
 
     def delete_template(self, id_: int) -> dict[str, Any]:
         """
+        Remove template.
+        TODO: Real API endpoint raise error, so requesting not API
+              endpoint here.
 
         :param id_:
         :return:
         """
-        # TODO: 500 Internal Server Error
-        return self.delete(
-            path=f"frontend/conversations/templates/{id_}",
+        response = self.post(
+            f"conversation_templates/template_{id_}",
+            base_url="https://career.habr.com/",
+            data={"_method": "delete"},
             auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
         )
+        if response.ok:
+            return {"success": True}
+        elif response.status_code == codes.NOT_FOUND:
+            return {"error": "Not found"}
+        return {"error": "Unknown error"}
+
+    # def update_template(
+    #         self,
+    #         id_: int,
+    #         **data: Unpack[TemplateUpdateParams]
+    # ) -> dict[str, Any]:
+    #     """
+    #     Update template with specified attributes.
+    #
+    #     :param id_:
+    #     :param data:
+    #     :return:
+    #     """
+    #     # TODO: 500 Internal Server Error
+    #     return self.patch(
+    #         f"frontend/conversations/templates/{id_}",
+    #         json=data,
+    #         auth_required=True,
+    #     )
 
     def update_template(
             self,
             id_: int,
-            title: str | None = None,
-            body: str | None = None,
+            **data: Unpack[TemplateUpdateParams]
     ) -> dict[str, Any]:
         """
+        Update template with specified attributes.
+        TODO: Real API endpoint raise error, so requesting not API
+              endpoint here.
 
         :param id_:
-        :param title:
-        :param body:
+        :param data:
         :return:
         """
-        # TODO: 500 Internal Server Error
-        data = {}
-        title and data.update(title=title)
-        body and data.update(title=body)
-        return self.patch(
-            path=f"frontend/conversations/templates/{id_}",
+        _data = {
+            f"conversation_template[{k}]": v
+            for k, v in data.items()
+        }
+        response = self.post(
+            f"conversation_templates/template_{id_}",
+            base_url="https://career.habr.com/",
+            data={"_method": "patch", **_data},
             auth_required=True,
-            json=data,
-            headers={"X-Csrf-Token": self.csrf_token},
         )
+        if response.ok:
+            return {"success": True}
+        elif response.status_code == codes.NOT_FOUND:
+            return {"error": "Not found"}
+        return {"error": "Unknown error"}
 
     def delete_conversation(self, username: str) -> dict[str, Any]:
         """
+        Remove conversation with specified user.
 
         :param username: User alias
         :return: Examples:
@@ -205,15 +295,15 @@ class HABRCareerConversationsMixin:
             {"status": "422", "error": "Unprocessable Entity"}
         """
         return self.delete(
-            path=f"frontend/conversations/{username}",
+            f"frontend/conversations/{username}",
             auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
         )
 
     disconnect = delete_conversation
 
     def send_message(self, username: str, message: str) -> dict[str, Any]:
         """
+        Send message to specified user.
 
         :param username: User alias
         :param message:
@@ -221,22 +311,31 @@ class HABRCareerConversationsMixin:
             {
                 "id": 568978437,
                 "createdAt": 1697889194624,
-                "body": "<p>One more test</p>",
-                "authorId": "x55aah",
+                "body": "<p>Я сейчас ищу Python разработчика удаленно.</p>",
+                "authorId": "user123",
                 "isMine": True
+            }
+            {
+                "status": "error",
+                "errors": [
+                    {
+                        "message": "Профиль пользователя заблокирован, вы не можете отправлять ему сообщения.",
+                        "type": "error"
+                    }
+                ]
             }
             {"error": "Not found"}
             {"status": "422", "error": "Unprocessable Entity"}
         """
         return self.post(
-            path=f"frontend/conversations/{username}/messages",
-            auth_required=True,
+            f"frontend/conversations/{username}/messages",
             json={"body": message},
-            headers={"X-Csrf-Token": self.csrf_token},
+            auth_required=True,
         )
 
     def unread_conversation(self, username: str) -> dict[str, Any]:
         """
+        Mark conversation with a specified user as unread.
 
         :param username: User alias
         :return: Examples:
@@ -245,9 +344,8 @@ class HABRCareerConversationsMixin:
             {"status": "422", "error": "Unprocessable Entity"}
         """
         return self.patch(
-            path=f"frontend/conversations/{username}/unread",
+            f"frontend/conversations/{username}/unread",
             auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
         )
 
     def change_conversation_subject(
@@ -256,6 +354,7 @@ class HABRCareerConversationsMixin:
             subject: str,
     ) -> dict[str, Any]:
         """
+        Change a specified user conversation topic.
 
         :param username: User alias
         :param subject:
@@ -265,10 +364,9 @@ class HABRCareerConversationsMixin:
             {"status": "422", "error": "Unprocessable Entity"}
         """
         return self.patch(
-            path=f"frontend/conversations/{username}/change_subject",
-            auth_required=True,
+            f"frontend/conversations/{username}/change_subject",
             json={"body": subject},
-            headers={"X-Csrf-Token": self.csrf_token},
+            auth_required=True,
         )
 
     def complain_conversation(
@@ -277,6 +375,7 @@ class HABRCareerConversationsMixin:
             reason: ComplainReason,
     ) -> dict[str, Any]:
         """
+        Complain to a specified user.
 
         :param username: User alias
         :param reason:
@@ -285,12 +384,15 @@ class HABRCareerConversationsMixin:
                  "status": True,
                  "message": "Переписка заблокирована, потому что вы пожаловались на этого пользователя"
              }
+             {
+                 "status": True,
+                 "message": "Профиль пользователя заблокирован, вы не можете отправлять ему сообщения."
+             }
              {"error": "Not found"}
              {"status": "422", "error": "Unprocessable Entity"}
         """
         return self.post(
-            path=f"frontend/conversations/{username}/complaint",
-            auth_required=True,
+            f"frontend/conversations/{username}/complaint",
             json={"reasonId": reason.value},
-            headers={"X-Csrf-Token": self.csrf_token},
+            auth_required=True,
         )

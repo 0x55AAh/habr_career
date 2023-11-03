@@ -45,59 +45,56 @@ __all__ = [
 
 
 class Authenticator(ABC):
+    """
+    Provides basic authentication functionality.
+    Used by API for being able to make requests on behalf of logged-in user.
+    """
+
     def __init__(self):
-        self._token: str | None = None
+        self.token: str | None = None
         self.api = None
-
-    @property
-    def token(self) -> str | None:
-        return self._token
-
-    @token.setter
-    def token(self, value) -> None:
-        self._token = value
 
     def is_authenticated(self) -> bool:
         return self.token is not None
 
     @abstractmethod
     def login(self) -> None:
+        """
+        Perform login operation.
+        This is the main operation for making current user authorized.
+        In most cases the method will take credentials saved when instantiating
+        authenticator and receive auth token based on these credentials.
+        Run this method before using API.
+
+        :return:
+        """
         pass
 
     def logout(self) -> None:
-        self._token = None
+        """
+        Perform logout operation.
+        Used for cleaning up the results of previous logging in.
 
-    def before_request(self, request: Request, **kwargs) -> None:
-        pass
-
-    def after_response(self, response: Response) -> None:
-        pass
+        :return:
+        """
+        self.token = None
 
 
 class TokenAuthenticator(Authenticator):
-    def __init__(self, token_: str):
+    """
+    Authenticator uses already received token.
+    This is for those cases when you are unable to perform login operation.
+    This might be the case, for example, due to re-captcha.
+    In such situation you should log in using other clients, for example
+    web browser. And then use the received token when creating authenticator.
+    """
+
+    def __init__(self, token: str):
         super().__init__()
-        self._token = token_
-        self._sess: str | None = None
+        self.token = token
 
     def login(self) -> None:
         """Nothing to do here as token has already configured."""
-
-    def before_request(
-            self,
-            request: Request,
-            auth_required: bool = False,
-    ) -> None:
-        if auth_required:
-            # if request.method in ("POST", "PUT", "PATCH", "DELETE"):
-            #     request.headers["X-Csrf-Token"] = self.api.csrf_token
-            request.cookies["remember_user_token"] = self.token
-            request.cookies["_career_session"] = self._sess
-
-    def after_response(self, response: Response) -> None:
-        sess = response.cookies.get("_career_session")
-        if sess:
-            self._sess = sess
 
 
 class HABRCareerAPIError(Exception):
@@ -105,13 +102,15 @@ class HABRCareerAPIError(Exception):
 
 
 class HABRCareerBaseAPI:
-    BASE_URL: str = "https://career.habr.com/api/"
-    BASE_GENERAL_URL: str = "https://career.habr.com/"
+    BASE_URL = "https://career.habr.com/api/"
+    GENERAL_BASE_URL = "https://career.habr.com/"
+    CSRF_PROTECTED_HTTP_METHODS = ("POST", "PUT", "PATCH", "DELETE")
 
     def __init__(self, auth: Authenticator):
         self.auth = auth
         if not auth.is_authenticated():
             self.auth.login()
+        self._sess: str | None = None
 
     @property
     def auth(self) -> Authenticator:
@@ -133,6 +132,7 @@ class HABRCareerBaseAPI:
             **kwargs
     ) -> Response | dict[str, Any]:
         """
+        Basic request method.
 
         :param path:
         :param method:
@@ -150,16 +150,22 @@ class HABRCareerBaseAPI:
         session = Session()
         request = Request(method, url, **kwargs)
 
-        self.auth.before_request(request, auth_required=auth_required)
-        response = session.send(request.prepare())
-        self.auth.after_response(response)
+        if auth_required:
+            if method in self.CSRF_PROTECTED_HTTP_METHODS:
+                request.headers["X-Csrf-Token"] = self.csrf_token
+            request.cookies["remember_user_token"] = self.auth.token
+            request.cookies["_career_session"] = self._sess
 
-        try:
-            data = response.json()
-        except JSONDecodeError:
-            if ssr:
-                data = get_ssr_json(response.text)
-            else:
+        response = session.send(request.prepare())
+
+        self._sess = response.cookies.get("_career_session")
+
+        if ssr:
+            data = get_ssr_json(response.text)
+        else:
+            try:
+                data = response.json()
+            except JSONDecodeError:
                 return response
 
         return data[key] if key else data
@@ -171,13 +177,14 @@ class HABRCareerBaseAPI:
             ssr: bool = False,
     ) -> str:
         """
+        Build url for API requests.
 
         :param path:
         :param base_url:
         :param ssr:
         :return:
         """
-        preconfigured_base = self.BASE_GENERAL_URL if ssr else self.BASE_URL
+        preconfigured_base = self.GENERAL_BASE_URL if ssr else self.BASE_URL
         base_url = (base_url or preconfigured_base).rstrip("/")
         return f"{base_url}/{path}"
 
@@ -189,27 +196,12 @@ class HABRCareerBaseAPI:
     delete = partialmethod(request, method="DELETE")
 
     @property
-    def user(self) -> dict[str, Any]:
-        """
-
-        :return:
-        """
-        data = self.get("frontend_v1/users/me", auth_required=True)
-        if not data:
-            raise HABRCareerAPIError("Not authorized")
-        return data
-
-    @property
-    def username(self) -> str:
-        """
-
-        :return:
-        """
-        return self.user["user"]["alias"]
-
-    @property
     def authenticity_token(self) -> str:
         """
+        Get authenticity token used as a token on different operations.
+        For example this token is being used as a CSRF token in conjunction
+        with HTTP methods POST, PATCH, DELETE, etc.
+        This is not require you to be logged in.
 
         :return:
         """
@@ -218,28 +210,8 @@ class HABRCareerBaseAPI:
 
     csrf_token = authenticity_token
 
-    @property
-    def subscribe_status(self) -> dict[str, Any]:
-        """
-
-        :return:
-        """
-        path = "frontend_v1/users/notification_subscribe_data"
-        return self.get(path, key="subscribeInfo")
-
-    @property
-    def profile(self) -> dict[str, Any]:
-        """
-
-        :return:
-        """
-        # TODO: API request not discovered yet
-        return self.get(self.username, auth_required=True, ssr=True)
-
 
 class HABRCareerAPI(
-    HABRCareerToolsMixin,
-    HABRCareerUsersMixin,
     HABRCareerFriendshipsMixin,
     HABRCareerConversationsMixin,
     HABRCareerVacanciesMixin,
@@ -250,6 +222,8 @@ class HABRCareerAPI(
     HABRCareerSalariesMixin,
     HABRCareerCoursesMixin,
     HABRCareerJournalMixin,
+    HABRCareerToolsMixin,
+    HABRCareerUsersMixin,
     HABRCareerBaseAPI
 ):
-    pass
+    """Fully featured API."""

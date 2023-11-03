@@ -1,12 +1,39 @@
+from enum import verify, UNIQUE, StrEnum
 from typing import Any
 
-from habr.career.utils import (
-    CareerSortingCriteria,
-    Currency,
-    CareerWorkState,
-    CareerActivityPeriod,
-    QueryParams,
-)
+from habr.career.utils import Currency, QueryParams
+
+
+@verify(UNIQUE)
+class CareerSortingCriteria(StrEnum):
+    # last_visited: по дате визита
+    # relevance: по соответствию
+    # salary_desc: по убыванию зарплаты
+    # salary_asc: по возрастанию зарплаты
+    LAST_VISITED = "last_visited"
+    RELEVANCE = "relevance"
+    SALARY_DESC = "salary_desc"
+    SALARY_ASC = "salary_asc"
+
+
+@verify(UNIQUE)
+class CareerActivityPeriod(StrEnum):
+    # two_years: За 2 года
+    # year: За год
+    # three_months: За 3 месяца
+    TWO_YEARS = "two_years"
+    YEAR = "year"
+    THREE_MONTHS = "three_months"
+
+
+@verify(UNIQUE)
+class CareerWorkState(StrEnum):
+    # not_search: Не ищу работу
+    # search: Ищу работу
+    # ready: Рассмотрю предложения
+    NOT_SEARCH = "not_search"
+    SEARCH = "search"
+    READY = "ready"
 
 
 # noinspection PyUnresolvedReferences
@@ -341,11 +368,8 @@ class HABRCareerResumesMixin:
             "with_social_ratings": with_social_ratings,
         })
         query = params.query(doseq=True, bool_as_str=True)
-        return self.post(
-            path=f"frontend/user_filters/resumes?{query}",
-            auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
-        )
+        path = f"frontend/user_filters/resumes?{query}"
+        return self.post(path, auth_required=True)
 
     def _career_filter_to_params(self, id_: int) -> QueryParams:
         # {
@@ -481,11 +505,8 @@ class HABRCareerResumesMixin:
         :return: Example:
             {"status": "ok", "id": 71930}
         """
-        return self.delete(
-            path=f"frontend/user_filters/resumes/{id_}",
-            auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
-        )
+        path = f"frontend/user_filters/resumes/{id_}"
+        return self.delete(path, auth_required=True)
 
     def get_universities_suggestions(
             self,

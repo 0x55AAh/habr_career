@@ -90,11 +90,8 @@ class HABRCareerVacanciesMixin:
     #     :param id_:
     #     :return: Example: {"favorite": True}
     #     """
-    #     return self.post(
-    #         path=f"frontend_v1/vacancies/{id_}/favorite",
-    #         auth_required=True,
-    #         headers={"X-Csrf-Token": self.csrf_token},
-    #     )
+    #     path = f"frontend_v1/vacancies/{id_}/favorite"
+    #     return self.post(path, auth_required=True)
 
     def add_vacancy_to_favorites(self, id_: int) -> dict[str, Any]:
         """
@@ -102,11 +99,8 @@ class HABRCareerVacanciesMixin:
         :param id_:
         :return: Example: {"favorite": True}
         """
-        return self.post(
-            path=f"frontend/vacancies/{id_}/favorite",
-            auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
-        )
+        path = f"frontend/vacancies/{id_}/favorite"
+        return self.post(path, auth_required=True)
 
     # def remove_vacancy_from_favorites(self, id_: int) -> dict[str, Any]:
     #     """
@@ -114,11 +108,8 @@ class HABRCareerVacanciesMixin:
     #     :param id_: Vacancy ID
     #     :return: Example: {"favorite": False}
     #     """
-    #     return self.post(
-    #         path=f"frontend_v1/vacancies/{id_}/unfavorite",
-    #         auth_required=True,
-    #         headers={"X-Csrf-Token": self.csrf_token},
-    #     )
+    #     path = f"frontend_v1/vacancies/{id_}/unfavorite"
+    #     return self.post(path, auth_required=True)
 
     def remove_vacancy_from_favorites(self, id_: int) -> dict[str, Any]:
         """
@@ -126,11 +117,8 @@ class HABRCareerVacanciesMixin:
         :param id_:
         :return: Example: {"favorite": False}
         """
-        return self.delete(
-            path=f"frontend/vacancies/{id_}/favorite",
-            auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
-        )
+        path = f"frontend/vacancies/{id_}/favorite"
+        return self.delete(path, auth_required=True)
 
     def give_reactions_to_vacancy(
             self,
@@ -147,11 +135,7 @@ class HABRCareerVacanciesMixin:
         query = urlencode(params, doseq=True)
         path = f"frontend/vacancies/{id_}/reactions?{query}"
 
-        return self.post(
-            path=path,
-            auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
-        )
+        return self.post(path, auth_required=True)
 
     def respond_to_vacancy(self, id_: int) -> dict[str, Any]:
         """
@@ -248,11 +232,8 @@ class HABRCareerVacanciesMixin:
         :return:
         """
         # TODO: captcha
-        return self.post(
-            path=f"frontend/vacancies/{id_}/responses",
-            auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
-        )
+        path = f"frontend/vacancies/{id_}/responses"
+        return self.post(path, auth_required=True)
 
     def get_vacancy_responses(self, id_: int) -> dict[str, Any]:
         """

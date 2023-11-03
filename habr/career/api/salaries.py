@@ -1,6 +1,13 @@
+from enum import verify, UNIQUE, IntEnum
 from typing import Any
 
-from habr.career.utils import EmploymentType, QueryParams, bool_to_str
+from habr.career.utils import QueryParams, bool_to_str
+
+
+@verify(UNIQUE)
+class EmploymentType(IntEnum):
+    FULL_TIME = 0
+    PART_TIME = 1
 
 
 # noinspection PyUnresolvedReferences

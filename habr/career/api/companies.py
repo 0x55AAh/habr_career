@@ -1,11 +1,32 @@
+from enum import verify, UNIQUE, IntEnum, StrEnum
 from typing import Any
 
-from habr.career.utils import (
-    CompanySize,
-    CompanyRatingCriteria,
-    Pagination,
-    QueryParams,
-)
+from habr.career.utils import Pagination, QueryParams
+
+
+@verify(UNIQUE)
+class CompanySize(IntEnum):
+    HUGE = 5    # > 5000
+    BIG = 4     # 1000 - 5000
+    MEDIUM = 3  # 100 - 1000
+    SMALL = 2   # 10 - 100
+
+
+@verify(UNIQUE)
+class CompanyRatingCriteria(StrEnum):
+    AV = "av"     # Общая оценка
+    S2 = "s_2"    # Интересные задачи
+    S16 = "s_16"  # Современные технологии
+    S3 = "s_3"    # Адекватная зарплата
+    S4 = "s_4"    # Социальный пакет
+    S5 = "s_5"    # Комфортные условия труда
+    S6 = "s_6"    # Профессиональный рост
+    S7 = "s_7"    # Карьерный рост
+    S8 = "s_8"    # Отношения с коллегами
+    S9 = "s_9"    # Признание результатов труда
+    S10 = "s_10"  # Грамотность менеджмента
+    S11 = "s_11"  # Связь с топ-менеджментом
+    S12 = "s_12"  # Компания делает мир лучше
 
 
 # noinspection PyUnresolvedReferences

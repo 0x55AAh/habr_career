@@ -1,15 +1,33 @@
-from typing import Any
+from enum import verify, UNIQUE, StrEnum
+from typing import Any, NamedTuple
 
 from habr.career.utils import (
     Currency,
     Pagination,
-    Sort,
-    CourseDuration,
     Qualification,
-    CourseSortField,
     SortDirection,
     QueryParams,
 )
+
+
+@verify(UNIQUE)
+class CourseSortField(StrEnum):
+    START_DATE = "startDate"
+    PRICE = "price"
+    AVERAGE_RATING = "averageRating"
+
+
+@verify(UNIQUE)
+class CourseDuration(StrEnum):
+    QUARTER = "quarter"
+    LESS_HALF = "lessHalf"
+    MORE_HALF = "moreHalf"
+    MORE_YEAR = "moreYear"
+
+
+class Sort(NamedTuple):
+    field: CourseSortField
+    direction: SortDirection
 
 
 # noinspection PyUnresolvedReferences

@@ -44,11 +44,8 @@ class HABRCareerFriendshipsMixin:
         :param username: User alias
         :return:
         """
-        return self.post(
-            path=f"frontend/users/{username}/friendships?status=pending",
-            auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
-        )
+        path = f"frontend/users/{username}/friendships?status=pending",
+        return self.post(path, auth_required=True)
 
     def accept_friend(self, username: str) -> dict[str, Any]:
         """
@@ -62,7 +59,6 @@ class HABRCareerFriendshipsMixin:
         return self.post(  # TODO: ensure method
             path=f"frontend/users/{username}/friendships?status=none",  # TODO:
             auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
         )
 
     def reject_friend(self, username: str) -> dict[str, Any]:
@@ -77,7 +73,6 @@ class HABRCareerFriendshipsMixin:
         return self.post(  # TODO: ensure method
             path=f"frontend/users/{username}/friendships?status=none",  # TODO:
             auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
         )
 
     def request_add_friend(self, username: str) -> dict[str, Any]:
@@ -86,11 +81,8 @@ class HABRCareerFriendshipsMixin:
         :param username: User alias
         :return:
         """
-        return self.post(
-            path=f"frontend/users/{username}/friendships?status=none",
-            auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
-        )
+        path = f"frontend/users/{username}/friendships?status=none"
+        return self.post(path, auth_required=True)
 
     def delete_friend(self, username: str) -> dict[str, Any]:
         """
@@ -98,11 +90,8 @@ class HABRCareerFriendshipsMixin:
         :param username: User alias
         :return:
         """
-        return self.post(
-            path=f"frontend/users/{username}/friendships?status=accepted",
-            auth_required=True,
-            headers={"X-Csrf-Token": self.csrf_token},
-        )
+        path = f"frontend/users/{username}/friendships?status=accepted"
+        return self.post(path, auth_required=True)
 
     def complain_user(
             self,
@@ -119,5 +108,4 @@ class HABRCareerFriendshipsMixin:
             path=f"frontend/users/{username}/complaints",
             auth_required=True,
             json={"reason": reason.value},  # TODO: Query parameters?
-            headers={"X-Csrf-Token": self.csrf_token},
         )
