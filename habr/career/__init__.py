@@ -1,8 +1,9 @@
-from habr.career.api import (
-    HABRCareerAPI,
-    TokenAuthenticator,
-    HABRCareerAPIError,
-)
+from habr.career.client import HABRCareerClient, TokenAuthenticator
+from habr.career.utils import HABRCareerClientError
 
 
-__all__ = ["HABRCareerAPI", "TokenAuthenticator", "HABRCareerAPIError"]
+__all__ = [
+    "HABRCareerClient",
+    "TokenAuthenticator",
+    "HABRCareerClientError",
+]

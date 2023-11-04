@@ -44,7 +44,7 @@ class HABRCareerFriendshipsMixin:
         :param username: User alias
         :return:
         """
-        path = f"frontend/users/{username}/friendships?status=pending",
+        path = f"frontend/users/{username}/friendships?status=pending"
         return self.post(path, auth_required=True)
 
     def accept_friend(self, username: str) -> dict[str, Any]:

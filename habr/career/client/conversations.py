@@ -294,10 +294,8 @@ class HABRCareerConversationsMixin:
             {"error": "Not found"}
             {"status": "422", "error": "Unprocessable Entity"}
         """
-        return self.delete(
-            f"frontend/conversations/{username}",
-            auth_required=True,
-        )
+        path = f"frontend/conversations/{username}"
+        return self.delete(path, auth_required=True)
 
     disconnect = delete_conversation
 
@@ -342,11 +340,10 @@ class HABRCareerConversationsMixin:
             {"success": True}
             {"error": "Not found"}
             {"status": "422", "error": "Unprocessable Entity"}
+            {"status": "500", "error": "Internal Server Error"}
         """
-        return self.patch(
-            f"frontend/conversations/{username}/unread",
-            auth_required=True,
-        )
+        path = f"frontend/conversations/{username}/unread"
+        return self.patch(path, auth_required=True)
 
     def change_conversation_subject(
             self,

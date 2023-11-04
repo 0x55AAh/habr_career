@@ -4,20 +4,20 @@ from typing import Any
 
 from requests import Request, Session, Response, JSONDecodeError
 
-from habr.career.api.companies import (
+from habr.career.client.companies import (
     HABRCareerCompaniesMixin,
     HABRCareerCompaniesRatingsMixin,
 )
-from habr.career.api.conversations import HABRCareerConversationsMixin
-from habr.career.api.courses import HABRCareerCoursesMixin
-from habr.career.api.experts import HABRCareerExpertsMixin
-from habr.career.api.friendships import HABRCareerFriendshipsMixin
-from habr.career.api.journal import HABRCareerJournalMixin
-from habr.career.api.resumes import HABRCareerResumesMixin
-from habr.career.api.salaries import HABRCareerSalariesMixin
-from habr.career.api.tools import HABRCareerToolsMixin
-from habr.career.api.users import HABRCareerUsersMixin
-from habr.career.api.vacancies import HABRCareerVacanciesMixin
+from habr.career.client.conversations import HABRCareerConversationsMixin
+from habr.career.client.courses import HABRCareerCoursesMixin
+from habr.career.client.experts import HABRCareerExpertsMixin
+from habr.career.client.friendships import HABRCareerFriendshipsMixin
+from habr.career.client.journal import HABRCareerJournalMixin
+from habr.career.client.resumes import HABRCareerResumesMixin
+from habr.career.client.salaries import HABRCareerSalariesMixin
+from habr.career.client.tools import HABRCareerToolsMixin
+from habr.career.client.users import HABRCareerUsersMixin
+from habr.career.client.vacancies import HABRCareerVacanciesMixin
 from habr.career.utils import get_ssr_json
 
 __all__ = [
@@ -37,22 +37,20 @@ __all__ = [
     "HABRCareerCoursesMixin",
     "HABRCareerJournalMixin",
 
-    "HABRCareerBaseAPI",
-    "HABRCareerAPI",
-
-    "HABRCareerAPIError",
+    "HABRCareerBaseClient",
+    "HABRCareerClient",
 ]
 
 
 class Authenticator(ABC):
     """
     Provides basic authentication functionality.
-    Used by API for being able to make requests on behalf of logged-in user.
+    Used by client for being able to make requests on behalf of logged-in user.
     """
 
     def __init__(self):
         self.token: str | None = None
-        self.api = None
+        self.client = None
 
     def is_authenticated(self) -> bool:
         return self.token is not None
@@ -64,7 +62,7 @@ class Authenticator(ABC):
         This is the main operation for making current user authorized.
         In most cases the method will take credentials saved when instantiating
         authenticator and receive auth token based on these credentials.
-        Run this method before using API.
+        Run this method before using client.
 
         :return:
         """
@@ -97,11 +95,7 @@ class TokenAuthenticator(Authenticator):
         """Nothing to do here as token has already configured."""
 
 
-class HABRCareerAPIError(Exception):
-    pass
-
-
-class HABRCareerBaseAPI:
+class HABRCareerBaseClient:
     BASE_URL = "https://career.habr.com/api/"
     GENERAL_BASE_URL = "https://career.habr.com/"
     CSRF_PROTECTED_HTTP_METHODS = ("POST", "PUT", "PATCH", "DELETE")
@@ -119,7 +113,7 @@ class HABRCareerBaseAPI:
     @auth.setter
     def auth(self, value: Authenticator) -> None:
         self._auth = value
-        self._auth.api = self
+        self._auth.client = self
 
     def request(
             self,
@@ -177,7 +171,7 @@ class HABRCareerBaseAPI:
             ssr: bool = False,
     ) -> str:
         """
-        Build url for API requests.
+        Build url for client requests.
 
         :param path:
         :param base_url:
@@ -211,7 +205,7 @@ class HABRCareerBaseAPI:
     csrf_token = authenticity_token
 
 
-class HABRCareerAPI(
+class HABRCareerClient(
     HABRCareerFriendshipsMixin,
     HABRCareerConversationsMixin,
     HABRCareerVacanciesMixin,
@@ -224,6 +218,6 @@ class HABRCareerAPI(
     HABRCareerJournalMixin,
     HABRCareerToolsMixin,
     HABRCareerUsersMixin,
-    HABRCareerBaseAPI
+    HABRCareerBaseClient
 ):
-    """Fully featured API."""
+    """Fully featured client."""

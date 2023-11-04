@@ -1,5 +1,7 @@
 from typing import Any
 
+from habr.career.utils import HABRCareerClientError
+
 
 # noinspection PyUnresolvedReferences
 class HABRCareerUsersMixin:
@@ -39,7 +41,7 @@ class HABRCareerUsersMixin:
         """
         data = self.get("frontend_v1/users/me", auth_required=True)
         if not data:
-            raise HABRCareerAPIError("Not authorized")
+            raise HABRCareerClientError("Not authorized")
         return data
 
     @property

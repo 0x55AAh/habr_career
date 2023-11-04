@@ -6,6 +6,10 @@ from urllib.parse import urlencode
 from bs4 import BeautifulSoup
 
 
+class HABRCareerClientError(Exception):
+    pass
+
+
 def get_ssr_json(html_code: str) -> dict:
     """
     Retrieve server side rendered json put into text/html page.
