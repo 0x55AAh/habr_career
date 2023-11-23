@@ -1,14 +1,4 @@
-<style>
-.cover-image {
-    height: 200px;
-    width: 3000px;
-    object-fit: cover;
-    margin-top: 10px;
-    border-radius: 10px;
-}
-</style>
-
-<img class="cover-image" src="https://career.habr.com/images/career_share.png" alt="">
+<img style="border-radius: 10px;margin-top: 10px;object-fit: cover;width: 3000px;height: 200px;" src="https://career.habr.com/images/career_share.png" alt="">
 
 ## Python клиент Хабр Карьера (https://career.habr.com/)
 
