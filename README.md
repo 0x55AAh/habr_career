@@ -1,4 +1,4 @@
-<img style="border-radius: 10px;margin-top: 10px;object-fit: cover;width: 3000px;height: 200px;" src="https://career.habr.com/images/career_share.png" alt="">
+![](logo.svg)
 
 ## Python клиент Хабр Карьера (https://career.habr.com/)
 
