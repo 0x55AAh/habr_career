@@ -1,4 +1,4 @@
-## ![ttttt](https://career.habr.com/images/career_share.png)
+## ![](https://career.habr.com/images/career_share.png)
 ## Habr Career клиент (https://career.habr.com/)
 
 Функционал включает следующие разделы веб клиента:
@@ -18,3 +18,44 @@
 - [x] users - набор методов для работы с пользователем
 
 > Клиент пока не полон т. к. есть места, где API либо отсутствует, либо сломано.
+---
+
+## Как всем этим пользоваться?
+
+Для начала экспортируем токен:
+```shell
+export HABR_CAREER_TOKEN=<Your token here>
+```
+После чего python код может выглядеть следующим образом:
+```python
+import os
+from habr.career import HABRCareerClient, TokenAuthenticator
+
+# Получаем сконфигурированный этапом ранее токен
+token = os.getenv("HABR_CAREER_TOKEN")
+
+# Создаем аутентификатор
+auth = TokenAuthenticator(token=token)
+
+# Создаем клиент
+client = HABRCareerClient(auth=auth)
+
+# Ваш код
+cv_data: bytes = client.get_my_cv()
+with open("my_cv_file.pdf", "wb") as f:
+    f.write(cv_data)
+```
+---
+
+## Где взять токен?
+
+Поскольку процесс логина защищен google re-captcha, то сначала выполняем вход
+на веб клиенте как обычно. После чего копируем `remember_user_token`, сохраненный в `cookies`.
+
+Токены живут достаточно долго. Я пока не сталкивался с ситуацией, когда созданный ранее токен
+перестал работать.
+
+> Токен не умирает даже если выполнить logout. Поэтому нужно быть крайне осторожным,
+> чтобы этот токен никуда случайно не утек. Как инвалидировать конкретно взятый токен
+> также пока не ясно.
+---
