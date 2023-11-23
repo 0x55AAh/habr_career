@@ -32,3 +32,13 @@ class UsersTestCase(BasicTestCase):
         self.assertIn("user", result)
         self.assertIn("hasActiveConnection", result)
         self.assertIn("visibleConnectionFeedback", result)
+
+    def test_get_my_skills(self):
+        result = self.client.get_my_skills(limit=5)
+        self.assertIsInstance(result, list)
+        self.assertLessEqual(len(result), 5)
+
+    def test_get_skills_in_my_specialization(self):
+        result = self.client.get_skills_in_my_specialization(limit=5)
+        self.assertIsInstance(result, list)
+        self.assertLessEqual(len(result), 5)

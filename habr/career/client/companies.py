@@ -31,12 +31,16 @@ class CompanyRatingCriteria(StrEnum):
 
 # noinspection PyUnresolvedReferences
 class HABRCareerCompaniesMixin:
+    """Раздел `Компании`"""
+
     # TODO: No API endpoints found for the chapter
     pass
 
 
 # noinspection PyUnresolvedReferences
 class HABRCareerCompaniesRatingsMixin:
+    """Раздел `Рейтинг`"""
+
     def get_companies_ratings(
             self,
             year: str,

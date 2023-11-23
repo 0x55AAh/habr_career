@@ -1,10 +1,12 @@
 from typing import Any
 
-from habr.career.utils import Pagination, ComplainReason
+from habr.career.utils import Pagination
 
 
 # noinspection PyUnresolvedReferences
 class HABRCareerFriendshipsMixin:
+    """Раздел `Друзья`"""
+
     def get_friends(
             self,
             page: int = Pagination.INIT_PAGE,
@@ -92,20 +94,3 @@ class HABRCareerFriendshipsMixin:
         """
         path = f"frontend/users/{username}/friendships?status=accepted"
         return self.post(path, auth_required=True)
-
-    def complain_user(
-            self,
-            username: str,
-            reason: ComplainReason,
-    ) -> dict[str, Any]:
-        """
-
-        :param username: User alias
-        :param reason:
-        :return:
-        """
-        return self.post(  # TODO: ensure method
-            path=f"frontend/users/{username}/complaints",
-            auth_required=True,
-            json={"reason": reason.value},  # TODO: Query parameters?
-        )

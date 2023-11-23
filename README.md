@@ -1,0 +1,20 @@
+## ![ttttt](https://career.habr.com/images/career_share.png)
+## Habr Career клиент (https://career.habr.com/)
+
+Функционал включает следующие разделы веб клиента:
+- [x] вакансии (https://career.habr.com/vacancies)
+- [x] специалисты (https://career.habr.com/resumes)
+- [x] эксперты (https://career.habr.com/experts)
+- [ ] компании (https://career.habr.com/companies)
+- [x] рейтинг (https://career.habr.com/companies/ratings)
+- [x] зарплаты (https://career.habr.com/salaries)
+- [x] образование (https://career.habr.com/courses)
+- [ ] журнал (https://career.habr.com/journal)
+- [x] переписки (https://career.habr.com/conversations)
+- [x] друзья (https://career.habr.com/x55aah/friends)
+
+Утильные разделы, созданные для удобства:
+- [x] tools - набор вспомогательных методов, используемых для работы веб клиента
+- [x] users - набор методов для работы с пользователем
+
+> Клиент пока не полон т. к. есть места, где API либо отсутствует, либо сломано.

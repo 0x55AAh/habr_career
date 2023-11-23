@@ -36,8 +36,24 @@ class CareerWorkState(StrEnum):
     READY = "ready"
 
 
+@verify(UNIQUE)
+class CareerSearchField(StrEnum):
+    # fio: в имени
+    # resume_headline: в специализации
+    # experiences: в должностях
+    # skills: в навыках профиля
+    # social_tags: в навыках сообществ
+    FIO = "fio"
+    RESUME_HEADLINE = "resume_headline"
+    EXPERIENCES = "experiences"
+    SKILLS = "skills"
+    SOCIAL_TAGS = "social_tags"
+
+
 # noinspection PyUnresolvedReferences
 class HABRCareerResumesMixin:
+    """Раздел `Специалисты`"""
+
     def get_resumes(
             self,
             search: str | None = None,

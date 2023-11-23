@@ -12,11 +12,33 @@ class EmploymentType(IntEnum):
 
 # noinspection PyUnresolvedReferences
 class HABRCareerSalariesMixin:
-    @property
+    """Раздел `Зарплаты`"""
+
     def my_salary(self) -> dict[str, Any]:
         """
 
-        :return:
+        :return: Examples:
+            {
+                "periods": [
+                    {"key": 221, "value": null, "title": "1-е пол. 2022"},
+                    {"key": 222, "value": null, "title": "2-е пол. 2022"},
+                    {"key": 231, "value": null, "title": "1-е пол. 2023"},
+                    {"key": 232, "value": 329800, "title": "2-е пол. 2023"}
+                ],
+                "lastSalary": {
+                    "value": 329800,
+                    "qualification": "Senior",
+                    "specialization": "backend"
+                },
+                "currentPeriod": {
+                    "value": 329800,
+                    "qualification": "Senior",
+                    "specialization": "backend"
+                },
+                "feedbackIsActive": True,
+                "leftFeedback": False,
+                "hasServices": False
+            }
         """
         path = "frontend_v1/salary_calculator/my_salary"
         return self.get(path, auth_required=True)
@@ -140,6 +162,65 @@ class HABRCareerSalariesMixin:
         })
         query = params.query(doseq=True)
         path = f"frontend_v1/salary_calculator/dynamic_graph?{query}"
+        return self.get(path, auth_required=True)
+
+    def get_salary_chart(
+            self,
+            specialization: str | None = None,
+    ) -> list[dict[str, str]]:
+        """
+
+        :param specialization: Specialization alias
+        :return: Examples:
+            {
+                "title": "бэкенд разработчика",
+                "values": [
+                    {
+                        "title": "Intern",
+                        "salary": {
+                            "value": 40000,
+                            "unit": "rur"
+                        },
+                        "isUserQualification": false
+                    },
+                    {
+                        "title": "Junior",
+                        "salary": {
+                            "value": 80000,
+                            "unit": "rur"
+                        },
+                        "isUserQualification": false
+                    },
+                    {
+                        "title": "Middle",
+                        "salary": {
+                            "value": 180000,
+                            "unit": "rur"
+                        },
+                        "isUserQualification": false
+                    },
+                    {
+                        "title": "Senior",
+                        "salary": {
+                            "value": 270000,
+                            "unit": "rur"
+                        },
+                        "isUserQualification": true
+                    },
+                    {
+                        "title": "Lead",
+                        "salary": {
+                            "value": 320000,
+                            "unit": "rur"
+                        },
+                        "isUserQualification": false
+                    }
+                ],
+                "diagramHref": "/salaries?spec_aliases%5B%5D=backend"
+            }
+        """
+        params = QueryParams({"specialization": specialization})
+        path = f"frontend_v1/salary_chart?{params.query()}"
         return self.get(path, auth_required=True)
 
     def get_locations_suggestions(self, search: str) -> list[dict[str, str]]:

@@ -6,6 +6,8 @@ from habr.career.utils import Currency, Pagination, QueryParams
 
 # noinspection PyUnresolvedReferences
 class HABRCareerVacanciesMixin:
+    """Раздел `Вакансии`"""
+
     def get_vacancies(
             self,
             search: str | None = None,
@@ -81,7 +83,7 @@ class HABRCareerVacanciesMixin:
         :param id_: Vacancy ID
         :return:
         """
-        # TODO: API request not discovered yet
+        # TODO: API endpoint not discovered yet
         return self.get(f"vacancies/{id_}", ssr=True)
 
     # def add_vacancy_to_favorites(self, id_: int) -> dict[str, Any]:
@@ -235,6 +237,22 @@ class HABRCareerVacanciesMixin:
         path = f"frontend/vacancies/{id_}/responses"
         return self.post(path, auth_required=True)
 
+    def revoke_response_to_vacancy(
+            self,
+            vacancy_id: int,
+            response_id: int,
+    ) -> dict[str, str]:
+        """
+        Revoke existing response to vacancy.
+
+        :param vacancy_id: Vacancy ID
+        :param response_id: Response ID
+        :return: Examples:
+            {"status": "success"}
+        """
+        path = f"frontend/vacancies/{vacancy_id}/responses/{response_id}"
+        return self.delete(path, auth_required=True)
+
     def get_vacancy_responses(self, id_: int) -> dict[str, Any]:
         """
 
@@ -261,3 +279,5 @@ class HABRCareerVacanciesMixin:
         """
         path = f"frontend/vacancies/{id_}/responses/archived"
         return self.get(path, auth_required=True)
+
+    # TODO: https://career.habr.com/api/frontend/vacancies/programmist_python

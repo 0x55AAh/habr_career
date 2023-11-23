@@ -16,6 +16,8 @@ class TemplateUpdateParams(TemplateParams, total=False):
 
 # noinspection PyUnresolvedReferences
 class HABRCareerConversationsMixin:
+    """Раздел `Переписки`"""
+
     def get_conversations(
             self,
             search: str | None = None,

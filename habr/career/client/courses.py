@@ -32,6 +32,7 @@ class Sort(NamedTuple):
 
 # noinspection PyUnresolvedReferences
 class HABRCareerCoursesMixin:
+    """Раздел `Образование`"""
     # TODO: API not discovered for education_centers and universities
 
     def get_courses(
@@ -88,21 +89,23 @@ class HABRCareerCoursesMixin:
             "withAssist": with_assist,
             "withCert": with_cert,
 
-            "educationPlatforms": education_platforms,
-            "cities": cities,
+            "educationPlatforms[]": education_platforms,
+            "cities[]": cities,
 
             "duration": duration,
             "qualification": qualification,
 
-            "skills": skills,
-            "specializations": specializations,
+            "skills[]": skills,
+            "specializations[]": specializations,
 
             "q": search,
         })
-        return self.get(f"frontend_v1/courses?{params.query(doseq=True)}")
+        query = params.query(doseq=True)
+        return self.get(f"frontend_v1/courses?{query}")
 
     def get_course(self, alias: str) -> dict[str, Any]:
         """
+        Get course detail.
 
         :param alias: Course alias
         :return:
@@ -111,6 +114,7 @@ class HABRCareerCoursesMixin:
 
     def get_course_scores(self, alias: str) -> dict[str, Any]:
         """
+        Get course scores.
 
         :param alias: Course alias
         :return:
@@ -119,11 +123,72 @@ class HABRCareerCoursesMixin:
 
     def get_similar_courses(self, alias: str) -> dict[str, Any]:
         """
+        Get courses similar to which was requested by alias.
 
         :param alias: Course alias
         :return:
         """
         return self.get(f"frontend_v1/courses/{alias}/similar_courses")
+
+    def get_popular_education_platforms(
+            self,
+            limit: int = 10,
+    ) -> list[dict[str, Any]]:
+        """
+        Get popular education platforms.
+
+        :param limit:
+        :return: Examples:
+            {
+                "popularEducationPlatforms": [
+                    {
+                        "id": "35",
+                        "title": "Яндекс Практикум",
+                        "alias": "35-yandeks-praktikum",
+                        "logoUrl": "https://habrastorage.org/getpro/moikrug/uploads/education_platform/000/000/035/logo/medium_9029ac948c9751ee1ad303e78f4f03c8.png",
+                        "isPartner": true,
+                        "coursesCount": 41,
+                        "graduatesCount": 9843
+                    }
+               ]
+            }
+        """
+        path = f"frontend_v1/education_platforms/popular?limit={limit}"
+        return self.get(path, key="popularEducationPlatforms")
+
+    def get_popular_skills(self, limit: int = 10) -> dict[str, Any]:
+        """
+        Get popular skills.
+
+        :param limit:
+        :return: Examples:
+            {
+                "skills": [
+                    {
+                      "title": "Python",
+                      "alias": "python"
+                    },
+                    {
+                      "title": "Java",
+                      "alias": "java"
+                    },
+                    {
+                      "title": "Защита информации",
+                      "alias": "zaschita-informatsii"
+                    },
+                    {
+                      "title": "JavaScript",
+                      "alias": "javascript"
+                    },
+                    {
+                      "title": "Управление проектами",
+                      "alias": "upravlenie-proektami"
+                    }
+                ]
+            }
+        """
+        path = f"frontend_v1/skills/popular?limit={limit}"
+        return self.get(path, key="skills")
 
     def get_educations_suggestions(self, search: str) -> dict[str, Any]:
         """
@@ -145,103 +210,15 @@ class HABRCareerCoursesMixin:
         path = f"frontend_v1/suggestions/education_platforms?term={search}"
         return self.get(path, key="education_platforms")
 
-    def get_cities_suggestions(self, search: str) -> list[dict[str, str]]:
-        """
-
-        :param search:
-        :return:
-        """
-        path = f"frontend_v1/suggestions/cities?q={search}"
-        return self.get(path, key="cities")
-
-    def get_skills_suggestions(self, search: str) -> list[dict[str, str]]:
-        """
-
-        :param search:
-        :return:
-        """
-        path = f"frontend_v1/suggestions/skills?q={search}"
-        return self.get(path, key="skills")
-
-    # def get_skills_suggestions(self, search: str) -> list[dict[str, Any]]:
-    #     """
-    #
-    #     :param search:
-    #     :return:
-    #     """
-    #     path = f"frontend/suggestions/skills?term={search}"
-    #     return self.get(path, key="list")
-
     @property
     def courses_count(self) -> int:
         """
+        Get the number of currently active courses.
 
-        :return:
+        :return: Examples:
+            {"count": 1139}
         """
         return self.get("frontend_v1/courses/total_count", key="count")
-
-    @property
-    def qualifications(self) -> list[dict[str, str | int]]:
-        """
-        {
-            "qualifications": [
-                {
-                    "title": "Стажёр",
-                    "position": 0,
-                    "alias": "Intern"
-                },
-                {
-                    "title": "Младший",
-                    "position": 2,
-                    "alias": "Junior"
-                },
-                {
-                    "title": "Средний",
-                    "position": 3,
-                    "alias": "Middle"
-                },
-                {
-                    "title": "Старший",
-                    "position": 4,
-                    "alias": "Senior"
-                },
-                {
-                    "title": "Ведущий",
-                    "position": 5,
-                    "alias": "Lead"
-                }
-            ]
-        }
-        :return:
-        """
-        return self.get("frontend_v1/qualifications", key="qualifications")
-
-    @property
-    def currencies(self) -> list[str]:
-        """
-        {
-            "currencies": [
-                {
-                    "currency": "rur"
-                },
-                {
-                    "currency": "eur"
-                },
-                {
-                    "currency": "usd"
-                },
-                {
-                    "currency": "uah"
-                },
-                {
-                    "currency": "kzt"
-                }
-            ]
-        }
-        :return:
-        """
-        res = self.get("frontend_v1/currencies", key="currencies")
-        return [r["currency"] for r in res]
 
     def get_specializations_with_course_counters(self) -> dict[str, Any]:
         """
@@ -256,3 +233,78 @@ class HABRCareerCoursesMixin:
         :return:
         """
         return self.get("frontend_v1/specializations")
+
+    def get_offers(self, specializations: list[str]) -> dict[str, Any]:
+        """
+
+        :param specializations:
+        :return: Examples:
+            {
+                "offers": {
+                    "lowPrice": 28990,
+                    "highPrice": 39990,
+                    "priceCurrency": "RUB",
+                    "offerCount": 4,
+                    "offers": [
+                        {
+                            "@type": "FinancialProduct",
+                            "name": "PROавтовебинарные воронки на GetCourse 2.0 ",
+                            "brand": "GetHelpers.ru"
+                        },
+                        {
+                            "@type": "FinancialProduct",
+                            "name": "Технический специалист по настройке GetCourse",
+                            "brand": "GetHelpers.ru"
+                        },
+                        {
+                            "@type": "FinancialProduct",
+                            "name": "PROпроцессы и маркетинг на GetCourse",
+                            "brand": "GetHelpers.ru"
+                        },
+                        {
+                            "@type": "FinancialProduct",
+                            "name": "Специалист по чат-ботам",
+                            "brand": "GetHelpers.ru"
+                        }
+                    ]
+                },
+                "aggregateRating": {
+                    "bestRating": "5",
+                    "worstRating": "1",
+                    "ratingCount": 0,
+                    "ratingValue": null
+                },
+                "events": [
+                    {
+                        "name": "Разработчик C++",
+                        "description": "Образовательный курс в «Яндекс Практикум». 9 месяцев, 126 000 ₽. Онлайн обучение. Сертификат. Трудоустройство. Запишитесь на курс прямо сейчас или расскажите о нём своим знакомым.",
+                        "startDate": "2023-11-13",
+                        "endDate": "2024-08-13",
+                        "url": "https://career.habr.com/courses/1200-razrabotchik-c"
+                    },
+                    {
+                        "name": "Инженер данных",
+                        "description": "Образовательный курс в «Яндекс Практикум». 6 месяцев, 95 000 ₽. Онлайн обучение. Сертификат. Запишитесь на курс прямо сейчас или расскажите о нём своим знакомым.",
+                        "startDate": "2023-11-13",
+                        "endDate": "2024-05-13",
+                        "url": "https://career.habr.com/courses/2900-inzhener-dannyh"
+                    },
+                    {
+                        "name": "Продакт-менеджер",
+                        "description": "Образовательный курс в «Яндекс Практикум». 5 месяцев, 120 000 ₽. Онлайн обучение. Сертификат. Запишитесь на курс прямо сейчас или расскажите о нём своим знакомым.",
+                        "startDate": "2023-11-13",
+                        "endDate": "2024-04-13",
+                        "url": "https://career.habr.com/courses/2936-prodakt-menedzher"
+                    }
+                ]
+            },
+            {
+                "httpCode": 404,
+                "errorCode": "NOT_FOUND",
+                "message": "Not found",
+                "data": {}
+            }
+        """
+        params = QueryParams({"specializations[]": specializations})
+        query = params.query(doseq=True)
+        return self.get(f"frontend_v1/courses/ld_json?{query}")

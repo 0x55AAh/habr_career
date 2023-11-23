@@ -5,6 +5,8 @@ from habr.career.utils import QueryParams
 
 # noinspection PyUnresolvedReferences
 class HABRCareerExpertsMixin:
+    """Раздел `Эксперты`"""
+
     def get_experts(
             self,
             search: str,

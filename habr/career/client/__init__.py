@@ -63,17 +63,12 @@ class Authenticator(ABC):
         In most cases the method will take credentials saved when instantiating
         authenticator and receive auth token based on these credentials.
         Run this method before using client.
-
-        :return:
         """
-        pass
 
     def logout(self) -> None:
         """
         Perform logout operation.
         Used for cleaning up the results of previous logging in.
-
-        :return:
         """
         self.token = None
 
@@ -196,8 +191,6 @@ class HABRCareerBaseClient:
         For example this token is being used as a CSRF token in conjunction
         with HTTP methods POST, PATCH, DELETE, etc.
         This is not require you to be logged in.
-
-        :return:
         """
         path = "frontend_v1/users/authenticity_token"
         return self.get(path, key="token")

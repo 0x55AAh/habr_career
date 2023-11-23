@@ -1,6 +1,7 @@
 import json
 from collections import UserDict
 from enum import Enum, verify, UNIQUE, StrEnum
+from typing import Any
 from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup
@@ -44,14 +45,18 @@ class QueryParams(UserDict):
     """Query parameters builder."""
 
     @staticmethod
-    def _convert(value, bool_as_str=False):
+    def _convert(value: Any, bool_as_str: bool = False) -> Any:
         if isinstance(value, bool):
             value = str(value).lower() if bool_as_str else int(value)
         elif isinstance(value, Enum):
             value = value.value
         return value
 
-    def query(self, doseq=False, bool_as_str=False):
+    def query(
+            self,
+            doseq: bool = False,
+            bool_as_str: bool = False,
+    ) -> str:
         """
         Convert current query object into string representation
         for using it as a query part of url.
@@ -113,17 +118,3 @@ class ComplainReason(StrEnum):
     SPAM = "spam"
     INSULT = "insult"
     OTHER = "other"
-
-
-@verify(UNIQUE)
-class CareerSearchField(StrEnum):
-    # fio: в имени
-    # resume_headline: в специализации
-    # experiences: в должностях
-    # skills: в навыках профиля
-    # social_tags: в навыках сообществ
-    FIO = "fio"
-    RESUME_HEADLINE = "resume_headline"
-    EXPERIENCES = "experiences"
-    SKILLS = "skills"
-    SOCIAL_TAGS = "social_tags"
