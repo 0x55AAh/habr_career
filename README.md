@@ -1,6 +1,6 @@
-![](logo.svg)
+![](logos/logo.svg)
 
-## Python клиент Хабр Карьера (https://career.habr.com/)
+## Python клиент (https://career.habr.com/)
 
 > **Примечание**: клиент не официальный
 

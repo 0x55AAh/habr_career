@@ -25,9 +25,9 @@ class HABRCareerUsersMixin:
             {
                 "user": {
                     "avatarUrl": "https://habrastorage.org/getpro/moikrug/uploads/user/100/026/547/2/avatar/8f53ae217b54d13eef1e9cee3d0487a4.jpg",
-                    "jobSearchState": 'ready',
-                    "alias": 'x55aah',
-                    "fullName": 'Владимир Лысенко',
+                    "jobSearchState": "ready",
+                    "alias": "x55aah",
+                    "fullName": "Владимир Лысенко",
                     "gaUidToken": "BAhpBADXnjs%3D--cbbac35334343f49901ad07235cdaf57fdf51171",
                     "canEditCourses": False,
                     "isExpert": False,
@@ -192,6 +192,6 @@ class HABRCareerUsersMixin:
         """
         return self.post(  # TODO: ensure method
             path=f"frontend/users/{username}/complaints",
-            auth_required=True,
             json={"reason": reason.value},  # TODO: Query parameters?
+            auth_required=True,
         )
