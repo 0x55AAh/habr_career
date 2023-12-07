@@ -6,48 +6,33 @@ from habr.career.utils import Currency, QueryParams
 
 @verify(UNIQUE)
 class CareerSortingCriteria(StrEnum):
-    # last_visited: по дате визита
-    # relevance: по соответствию
-    # salary_desc: по убыванию зарплаты
-    # salary_asc: по возрастанию зарплаты
-    LAST_VISITED = "last_visited"
-    RELEVANCE = "relevance"
-    SALARY_DESC = "salary_desc"
-    SALARY_ASC = "salary_asc"
+    LAST_VISITED = "last_visited"  # по дате визита
+    RELEVANCE = "relevance"        # по соответствию
+    SALARY_DESC = "salary_desc"    # по убыванию зарплаты
+    SALARY_ASC = "salary_asc"      # по возрастанию зарплаты
 
 
 @verify(UNIQUE)
 class CareerActivityPeriod(StrEnum):
-    # two_years: За 2 года
-    # year: За год
-    # three_months: За 3 месяца
-    TWO_YEARS = "two_years"
-    YEAR = "year"
-    THREE_MONTHS = "three_months"
+    TWO_YEARS = "two_years"        # За 2 года
+    YEAR = "year"                  # За 1 год
+    THREE_MONTHS = "three_months"  # За 3 месяца
 
 
 @verify(UNIQUE)
 class CareerWorkState(StrEnum):
-    # not_search: Не ищу работу
-    # search: Ищу работу
-    # ready: Рассмотрю предложения
-    NOT_SEARCH = "not_search"
-    SEARCH = "search"
-    READY = "ready"
+    NOT_SEARCH = "not_search"  # Не ищу работу
+    SEARCH = "search"          # Ищу работу
+    READY = "ready"            # Рассмотрю предложения
 
 
 @verify(UNIQUE)
 class CareerSearchField(StrEnum):
-    # fio: в имени
-    # resume_headline: в специализации
-    # experiences: в должностях
-    # skills: в навыках профиля
-    # social_tags: в навыках сообществ
-    FIO = "fio"
-    RESUME_HEADLINE = "resume_headline"
-    EXPERIENCES = "experiences"
-    SKILLS = "skills"
-    SOCIAL_TAGS = "social_tags"
+    FIO = "fio"                          # в имени
+    RESUME_HEADLINE = "resume_headline"  # в специализации
+    EXPERIENCES = "experiences"          # в должностях
+    SKILLS = "skills"                    # в навыках профиля
+    SOCIAL_TAGS = "social_tags"          # в навыках сообществ
 
 
 # noinspection PyUnresolvedReferences
@@ -57,7 +42,7 @@ class HABRCareerResumesMixin:
     def get_resumes(
             self,
             search: str | None = None,
-            search_fields: list[str] | None = None,
+            search_fields: list[CareerSearchField] | None = None,
             sort: CareerSortingCriteria | None = None,
             specializations: list[int] | None = None,
             qualification: int | None = None,
@@ -83,43 +68,195 @@ class HABRCareerResumesMixin:
             with_salary: bool | None = None,
             with_social_ratings: bool | None = None,
     ) -> dict[str, Any]:
-        # TODO:
+        """
+        Get resumes.
+
+        :param search:
+        :param search_fields:
+        :param sort:
+        :param specializations:
+        :param qualification:
+        :param skills:
+        :param salary:
+        :param currency:
+        :param locations:
+        :param exclude_locations:
+        :param companies:
+        :param not_companies:
+        :param current_company:
+        :param universities:
+        :param not_universities:
+        :param educations:
+        :param not_educations:
+        :param work_state:
+        :param relocation:
+        :param remote:
+        :param period:
+        :param with_educations: С высшим образованием
+        :param with_extra_educations: С дополнительным образованием
+        :param with_experiences: С опытом работы
+        :param with_salary: Указана зарплата
+        :param with_social_ratings: Участник ИТ-сообществ
+        :return: Examples:
+            {
+                "list": [
+                    {
+                        "id": "elenatyurinait",
+                        "title": "Елена Тюрина",
+                        "href": "/elenatyurinait",
+                        "conversationHref": "/elenatyurinait/connect",
+                        "avatar": {
+                            "src": "https://habrastorage.org/getpro/moikrug/uploads/user/100/052/265/2/avatar/medium_676c50ea9b78a738009bc2940ccf2822.jpg",
+                            "src2x": "https://habrastorage.org/getpro/moikrug/uploads/user/100/052/265/2/avatar/medium_676c50ea9b78a738009bc2940ccf2822.jpg"
+                        },
+                        "lastVisited": {
+                            "title": "сегодня",
+                            "date": "2023-12-03T18:51:01+03:00"
+                        },
+                        "specialization": "",
+                        "qualification": {
+                            "title": "Middle",
+                            "value": 4
+                        },
+                        "salary": {
+                            "title": "От 150 000 ₽",
+                            "value": 150000,
+                            "currency": "rur"
+                        },
+                        "availability": {
+                            "title": "Не ищу работу",
+                            "value": "unavailable"
+                        },
+                        "location": {
+                            "title": "Саратов",
+                            "name": "",
+                            "href": "/resumes?city_ids%5B%5D=729",
+                            "value": 729
+                        },
+                        "remoteWork": True,
+                        "relocation": False,
+                        "skills": [
+                            {
+                                "title": "Подбор специалистов",
+                                "href": "/resumes?skills%5B%5D=352",
+                                "value": 352
+                            },
+                            {
+                                "title": "Проведение интервью",
+                                "href": "/resumes?skills%5B%5D=71",
+                                "value": 71
+                            },
+                            {
+                                "title": "Работа в команде",
+                                "href": "/resumes?skills%5B%5D=638",
+                                "value": 638
+                            },
+                            {
+                                "title": "Консультирование",
+                                "href": "/resumes?skills%5B%5D=884",
+                                "value": 884
+                            },
+                            {
+                                "title": "Подбор руководителей",
+                                "href": "/resumes?skills%5B%5D=882",
+                                "value": 882
+                            },
+                            {
+                                "title": "Консультирование по подбору персонала",
+                                "href": "/resumes?skills%5B%5D=790",
+                                "value": 790
+                            },
+                            {
+                                "title": "Обучение персонала",
+                                "href": "/resumes?skills%5B%5D=518",
+                                "value": 518
+                            }
+                        ],
+                        "age": {
+                            "title": "35 лет",
+                            "value": 35
+                        },
+                        "experience": {
+                            "title": "2 года и 5 месяцев",
+                            "value": 29
+                        },
+                        "lastJob": {
+                            "position": "it рекрутер",
+                            "company": {
+                                "title": "Selecty",
+                                "accredited": false,
+                                "href": "/companies/selecty"
+                            },
+                            "duration": {
+                                "title": "2 года и 4 месяца",
+                                "value": 28
+                            }
+                        },
+                        "education": {
+                            "university": {
+                                "title": "СГУ им. Н.Г. Чернышевского",
+                                "href": "/universities/1718"
+                            },
+                            "faculty": "Механико-математический",
+                            "duration": {
+                                "title": "4 года и 9 месяцев",
+                                "value": 57
+                            }
+                        },
+                        "additionalEducation": [],
+                        "communities": [],
+                        "coworkers": [],
+                        "specializations": [
+                            {
+                                "title": "Менеджер по персоналу"
+                            },
+                            {
+                                "title": "Менеджер по найму"
+                            }
+                        ],
+                        "gender": 1,
+                        "isExpert": False,
+                        "moreUniversityCount": 0
+                    },
+                ],
+                "meta": {
+                    "totalResults": 494923,
+                    "perPage": 25,
+                    "currentPage": 1,
+                    "totalPages": 19797
+                },
+                "limitedAccess": {
+                    "type": "noCompany",
+                    "newCompanyHref": "https://career.habr.com/companies/new"
+                }
+            }
+        """
         params = QueryParams({
             "q": search,
-            # fio - в имени
-            # resume_headline - в специализации
-            # experiences - в должностях
-            # skills - в навыках профиля
-            # social_tags - в навыках сообществ
-            "fields": search_fields,
-            "s": specializations,
+            "fields[]": search_fields,
+            "s[]": specializations,
             "order": sort,
             "qid": qualification,
-            "skills": skills,
+            "skills[]": skills,
             "salary": salary,
-            "currency": currency,  # Case-sensitive? (Default "RUR")
-            "locations": locations,
+            "currency": currency.upper(),
+            "locations[]": locations,
             "exclude_locations": exclude_locations,
-            "company_ids": companies,
+            "company_ids[]": companies,
             "not_companies": not_companies,
             "current_company": current_company,
-            "university_ids": universities,
+            "university_ids[]": universities,
             "not_universities": not_universities,
-            "edc_ids": educations,
+            "edc_ids[]": educations,
             "not_edcs": not_educations,
             "work_state": work_state,
             "relocation": relocation,
             "remote": remote,
             "period": period,
-            # С высшим образованием
             "with_educations": with_educations,
-            # С дополнительным образованием
             "with_add_eds": with_extra_educations,
-            # С опытом работы
             "with_experiences": with_experiences,
-            # Указана зарплата
             "with_salary": with_salary,
-            # Участник ИТ-сообществ
             "with_social_ratings": with_social_ratings,
         })
         query = params.query(doseq=True, bool_as_str=True)
@@ -128,7 +265,7 @@ class HABRCareerResumesMixin:
     def get_resumes_data(
             self,
             search: str | None = None,
-            search_fields: list[str] | None = None,
+            search_fields: list[CareerSearchField] | None = None,
             sort: CareerSortingCriteria | None = None,
             specializations: list[int] | None = None,
             qualification: int | None = None,
@@ -179,50 +316,250 @@ class HABRCareerResumesMixin:
         :param relocation:
         :param remote:
         :param period:
-        :param with_educations:
-        :param with_extra_educations:
-        :param with_experiences:
-        :param with_salary:
-        :param with_social_ratings:
-        :return:
+        :param with_educations: С высшим образованием
+        :param with_extra_educations: С дополнительным образованием
+        :param with_experiences: С опытом работы
+        :param with_salary: Указана зарплата
+        :param with_social_ratings: Участник ИТ-сообществ
+        :return: Examples:
+            {
+                "isGuest": True,
+                "tabs": [
+                    {
+                        "title": "Хабр Карьера",
+                        "href": "/resumes",
+                        "active": True
+                    },
+                    ...
+                ],
+                "search": {
+                    "query": "",
+                    "order": "last_visited",
+                    "filters": {
+                        "qualification": None,
+                        "currency": "RUR",
+                        "companies": [],
+                        "salary": None,
+                        "divisions": [],
+                        "skills": [],
+                        "locations": [],
+                        "availability": None,
+                        "searchFields": [],
+                        "universities": [],
+                        "extraEducations": [],
+                        "excludeLocation": False,
+                        "excludeCompany": False,
+                        "excludeUniversity": False,
+                        "excludeExtraEducation": False,
+                        "isCurrentCompany": False,
+                        "relocation": False,
+                        "remoteWork": False,
+                        "hasHighEducation": False,
+                        "hasExtraEducation": False,
+                        "hasExperience": False,
+                        "hasSalary": False,
+                        "hasSocialRatings": False,
+                        "hasVisitedLastYear": False,
+                        "activityPeriod": None,
+                        "s": []
+                    },
+                    "groups": [
+                        ...
+                    ],
+                    "savedFilters": []
+                },
+                "options": {
+                    "order": [
+                        {
+                            "value": "relevance",
+                            "title": "По соответствию"
+                        },
+                        ...
+                    ],
+                    "searchFields": [
+                        {
+                            "title": "в имени",
+                            "value": "fio"
+                        },
+                        ...
+                    ],
+                    "divisions": [
+                        {
+                            "value": "backend",
+                            "title": "Бэкенд"
+                        },
+                        ...
+                    ],
+                    "qualification": [
+                        {
+                            "value": None,
+                            "title": "Любая"
+                        },
+                        ...
+                    ],
+                    "currency": [
+                        {
+                            "value": "RUR",
+                            "title": "₽"
+                        },
+                        ...
+                    ],
+                    "availability": [
+                        {
+                            "title": "Любая",
+                            "value": None
+                        },
+                        ...
+                    ],
+                    "activityPeriod": [
+                        {
+                            "title": "Любая",
+                            "value": None
+                        },
+                        ...
+                    ],
+                    "s": [
+                        {
+                            "value": 1,
+                            "title": "Десктоп разработчик",
+                            "parent_id": 1
+                        },
+                        ...
+                    ]
+                },
+                "filtersData": {
+                    "skills": [],
+                    "companies": [],
+                    "locations": [],
+                    "universities": [],
+                    "extraEducations": []
+                },
+                "resumes": {
+                    "list": [
+                        {
+                            "id": "dima-onischuk",
+                            "title": "Дима Онищук",
+                            "href": "/dima-onischuk",
+                            "conversationHref": None,
+                            "avatar": {
+                                "src": "https://career.habr.com/assets/defaults/avatars/user-4ae9deaab7da70ad824797029541e20765d74e4d1707ec8708d05d2a61eee32b.png",
+                                "src2x": "https://career.habr.com/assets/defaults/avatars/user-4ae9deaab7da70ad824797029541e20765d74e4d1707ec8708d05d2a61eee32b.png"
+                            },
+                            "lastVisited": {
+                                "title": "сегодня",
+                                "date": "2023-12-03T19:24:01+03:00"
+                            },
+                            "specialization": "С++ программист",
+                            "qualification": {
+                                "title": "Middle",
+                                "value": 4
+                            },
+                            "salary": None,
+                            "availability": {
+                                "title": "Не ищу работу",
+                                "value": "unavailable"
+                            },
+                            "location": {
+                                "title": "Санкт-Петербург",
+                                "name": "saint-petersburg",
+                                "href": "/resumes?city_ids%5B%5D=679",
+                                "value": 679
+                            },
+                            "remoteWork": True,
+                            "relocation": True,
+                            "skills": [
+                                {
+                                    "title": "C++",
+                                    "href": "/resumes?skills%5B%5D=172",
+                                    "value": 172
+                                },
+                                ...
+                            ],
+                            "age": {
+                                "title": "23 года",
+                                "value": 23
+                            },
+                            "experience": {
+                                "title": "3 года и 6 месяцев",
+                                "value": 42
+                            },
+                            "lastJob": {
+                                "position": "Разработчик функциональности товарного поиска",
+                                "company": {
+                                    "title": "Яндекс",
+                                    "accredited": False,
+                                    "href": "/companies/yandex"
+                                },
+                                "duration": {
+                                    "title": "10 месяцев",
+                                    "value": 10
+                                }
+                            },
+                            "education": {
+                                "university": {
+                                    "title": "НГУ",
+                                    "href": "/universities/1691"
+                                },
+                                "faculty": "Факультет информационных технологий (ФИТ)",
+                                "duration": {
+                                    "title": "3 года и 9 месяцев",
+                                    "value": 45
+                                }
+                            },
+                            "additionalEducation": [],
+                            "communities": [],
+                            "coworkers": [],
+                            "specializations": [
+                                {
+                                    "title": "Бэкенд разработчик"
+                                }
+                            ],
+                            "gender": 0,
+                            "isExpert": False,
+                            "moreUniversityCount": 0
+                        },
+                    ],
+                    "meta": {
+                        "totalResults": 259411,
+                        "perPage": 25,
+                        "currentPage": 1,
+                        "totalPages": 10377
+                    },
+                    "limitedAccess": {
+                        "type": "guest",
+                        "registerHref": "https://career.habr.com/users/auth/tmid/register",
+                        "loginHref": "https://career.habr.com/users/auth/tmid"
+                    }
+                },
+                "vacancyBanners": []
+            }
         """
-        # TODO:
         params = QueryParams({
             "q": search,
-            # fio - в имени
-            # resume_headline - в специализации
-            # experiences - в должностях
-            # skills - в навыках профиля
-            # social_tags - в навыках сообществ
-            "fields": search_fields,
-            "s": specializations,
+            "fields[]": search_fields,
+            "s[]": specializations,
             "order": sort,
             "qid": qualification,
-            "skills": skills,
+            "skills[]": skills,
             "salary": salary,
-            "currency": currency,  # Case-sensitive? (Default "RUR")
-            "locations": locations,
+            "currency": currency.upper(),
+            "locations[]": locations,
             "exclude_locations": exclude_locations,
-            "company_ids": companies,
+            "company_ids[]": companies,
             "not_companies": not_companies,
             "current_company": current_company,
-            "university_ids": universities,
+            "university_ids[]": universities,
             "not_universities": not_universities,
-            "edc_ids": educations,
+            "edc_ids[]": educations,
             "not_edcs": not_educations,
             "work_state": work_state,
             "relocation": relocation,
             "remote": remote,
             "period": period,
-            # С высшим образованием
             "with_educations": with_educations,
-            # С дополнительным образованием
             "with_add_eds": with_extra_educations,
-            # С опытом работы
             "with_experiences": with_experiences,
-            # Указана зарплата
             "with_salary": with_salary,
-            # Участник ИТ-сообществ
             "with_social_ratings": with_social_ratings,
         })
         query = params.query(doseq=True, bool_as_str=True)
@@ -231,7 +568,7 @@ class HABRCareerResumesMixin:
     def save_careers_filter(
             self,
             search: str | None = None,
-            search_fields: list[str] | None = None,
+            search_fields: list[CareerSearchField] | None = None,
             sort: CareerSortingCriteria | None = None,
             specializations: list[int] | None = None,
             qualification: int | None = None,
@@ -258,7 +595,35 @@ class HABRCareerResumesMixin:
             with_social_ratings: bool | None = None,
     ) -> dict[str, Any]:
         """
-        - RESPONSE:
+        Save filter.
+
+        :param search:
+        :param search_fields:
+        :param sort:
+        :param specializations:
+        :param qualification:
+        :param skills:
+        :param salary:
+        :param currency:
+        :param locations:
+        :param exclude_locations:
+        :param companies:
+        :param not_companies:
+        :param current_company:
+        :param universities:
+        :param not_universities:
+        :param educations:
+        :param not_educations:
+        :param work_state:
+        :param relocation:
+        :param remote:
+        :param period:
+        :param with_educations: С высшим образованием
+        :param with_extra_educations: С дополнительным образованием
+        :param with_experiences: С опытом работы
+        :param with_salary: Указана зарплата
+        :param with_social_ratings: Участник ИТ-сообществ
+        :return: Examples:
             {
                 "status": "ok",
                 "savedFilters": [
@@ -271,18 +636,18 @@ class HABRCareerResumesMixin:
                             "qualification": 1,
                             "salary": 200000,
                             "currency": "RUR",
-                            "remoteWork": true,
-                            "relocation": true,
-                            "hasSalary": true,
-                            "hasHighEducation": true,
-                            "hasExtraEducation": true,
-                            "hasExperience": true,
-                            "hasSocialRatings": true,
-                            "excludeLocation": true,
-                            "excludeCompany": true,
-                            "excludeUniversity": true,
-                            "excludeExtraEducation": true,
-                            "isCurrentCompany": true,
+                            "remoteWork": True,
+                            "relocation": True,
+                            "hasSalary": True,
+                            "hasHighEducation": True,
+                            "hasExtraEducation": True,
+                            "hasExperience": True,
+                            "hasSocialRatings": True,
+                            "excludeLocation": True,
+                            "excludeCompany": True,
+                            "excludeUniversity": True,
+                            "excludeExtraEducation": True,
+                            "isCurrentCompany": True,
                             "activityPeriod": "three_months",
                             "s": [
                                 2
@@ -342,170 +707,168 @@ class HABRCareerResumesMixin:
                     }
                 ]
             }
-        :return:
         """
-        # TODO:
         params = QueryParams({
             "q": search,
-            # fio - в имени
-            # resume_headline - в специализации
-            # experiences - в должностях
-            # skills - в навыках профиля
-            # social_tags - в навыках сообществ
-            "fields": search_fields,
-            "s": specializations,
+            "fields[]": search_fields,
+            "s[]": specializations,
             "order": sort,
             "qid": qualification,
-            "skills": skills,
+            "skills[]": skills,
             "salary": salary,
-            "currency": currency,  # Case-sensitive? (Default "RUR")
-            "locations": locations,
+            "currency": currency.upper(),
+            "locations[]": locations,
             "exclude_locations": exclude_locations,
-            "company_ids": companies,
+            "company_ids[]": companies,
             "not_companies": not_companies,
             "current_company": current_company,
-            "university_ids": universities,
+            "university_ids[]": universities,
             "not_universities": not_universities,
-            "edc_ids": educations,
+            "edc_ids[]": educations,
             "not_edcs": not_educations,
             "work_state": work_state,
             "relocation": relocation,
             "remote": remote,
             "period": period,
-            # С высшим образованием
             "with_educations": with_educations,
-            # С дополнительным образованием
             "with_add_eds": with_extra_educations,
-            # С опытом работы
             "with_experiences": with_experiences,
-            # Указана зарплата
             "with_salary": with_salary,
-            # Участник ИТ-сообществ
             "with_social_ratings": with_social_ratings,
         })
         query = params.query(doseq=True, bool_as_str=True)
         path = f"frontend/user_filters/resumes?{query}"
         return self.post(path, auth_required=True)
 
+    @staticmethod
+    def _career_filter_data_to_params(filter_data: dict) -> QueryParams:
+        """
+        Converts filter data into query params.
+
+        :param filter_data: Expected structure:
+            {
+                "id": 71930,
+                "title": "Бэкенд разработчик • до 200 000 ₽ • МТС (не текущее место работы) • ИПК и ПРНО МО (исключить) • Яндекс Практикум (исключить) • Стажёр (Intern) • Готов к удаленной работе • Готов к переезду • С образованием • С доп. образованием • С опытом работы • Указана зарплата • Участник ИТ-сообществ • Заходили на сайт за 3 месяца • Луганск (исключить) • По возрастанию зарплаты • [Анд]",
+                "href": "/resumes?company_ids%5B%5D=355898672\u0026currency=RUR\u0026current_company=true\u0026edc_ids%5B%5D=35\u0026exclude_locations=true\u0026locations%5B%5D=c_909\u0026not_companies=true\u0026not_edcs=true\u0026not_universities=true\u0026order=salary_asc\u0026period=three_months\u0026q=%D0%90%D0%BD%D0%B4\u0026qid=1\u0026relocation=true\u0026remote=true\u0026s%5B%5D=2\u0026salary=200000\u0026university_ids%5B%5D=82038\u0026with_add_eds=true\u0026with_educations=true\u0026with_experiences=true\u0026with_salary=true\u0026with_social_ratings=true",
+                "filters": {
+                    "searchFields": [],
+                    "qualification": 1,
+                    "salary": 200000,
+                    "currency": "RUR",
+                    "remoteWork": true,
+                    "relocation": true,
+                    "hasSalary": true,
+                    "hasHighEducation": true,
+                    "hasExtraEducation": true,
+                    "hasExperience": true,
+                    "hasSocialRatings": true,
+                    "excludeLocation": true,
+                    "excludeCompany": true,
+                    "excludeUniversity": true,
+                    "excludeExtraEducation": true,
+                    "isCurrentCompany": true,
+                    "activityPeriod": "three_months",
+                    "s": [
+                        2
+                    ],
+                    "locations": [
+                        "c_909"
+                    ],
+                    "companies": [
+                        355898672
+                    ],
+                    "universities": [
+                        82038
+                    ],
+                    "extraEducations": [
+                        35
+                    ]
+                },
+                "query": "Анд",
+                "order": "salary_asc",
+                "filtersData": {
+                    "locations": [
+                        {
+                            "value": "c_909",
+                            "title": "Луганск"
+                        }
+                    ],
+                    "skills": [],
+                    "companies": [
+                        {
+                            "value": 355898672,
+                            "title": "МТС"
+                        }
+                    ],
+                    "universities": [
+                        {
+                            "value": 82038,
+                            "title": "ИПК и ПРНО МО",
+                            "subtitle": "Москва, Институт повышения квалификации и профессиональной переподготовки работников народного образования Московской области"
+                        }
+                    ],
+                    "extraEducations": [
+                        {
+                            "value": 35,
+                            "title": "Яндекс Практикум"
+                        }
+                    ]
+                }
+            }
+        :return:
+        """
+        filters = filter_data["filters"]
+        return QueryParams({
+            "q": filter_data.get("query"),
+            "order": filter_data.get("order"),
+
+            "fields[]": filters.get("searchFields"),
+            "s[]": filters.get("s"),
+            "qid": filters.get("qualification"),
+            "skills[]": filters.get("skills"),
+            "salary": filters.get("salary"),
+            "currency": filters.get("currency"),
+            "locations[]": filters.get("locations"),
+            "exclude_locations": filters.get("excludeLocation"),
+            "company_ids[]": filters.get("companies"),
+            "not_companies": filters.get("excludeCompany"),
+            "not_universities": filters.get("excludeUniversity"),
+            "not_edcs": filters.get("excludeExtraEducation"),
+
+            # TODO: Not working, availability is always null
+            "work_state": filters.get("availability"),
+
+            "edc_ids[]": filters.get("extraEducations"),
+            "university_ids[]": filters.get("universities"),
+            "current_company": filters.get("isCurrentCompany"),
+            "relocation": filters.get("relocation"),
+            "remote": filters.get("remoteWork"),
+            "period": filters.get("activityPeriod"),
+
+            "with_educations": filters.get("hasHighEducation"),
+            "with_add_eds": filters.get("hasExtraEducation"),
+            "with_experiences": filters.get("hasExperience"),
+            "with_salary": filters.get("hasSalary"),
+            "with_social_ratings": filters.get("hasSocialRatings"),
+        })
+
     def _career_filter_to_params(self, id_: int) -> QueryParams:
-        # {
-        #     "id": 71945,
-        #     "title": "\u0411\u044d\u043a\u0435\u043d\u0434 \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u0447\u0438\u043a \u2022 \u0434\u043e 200 000 \u20bd \u2022 \u041c\u0422\u0421 (\u043d\u0435 \u0442\u0435\u043a\u0443\u0449\u0435\u0435 \u043c\u0435\u0441\u0442\u043e \u0440\u0430\u0431\u043e\u0442\u044b) \u2022 \u0418\u041f\u041a \u0438 \u041f\u0420\u041d\u041e \u041c\u041e (\u0438\u0441\u043a\u043b\u044e\u0447\u0438\u0442\u044c) \u2022 \u042f\u043d\u0434\u0435\u043a\u0441 \u041f\u0440\u0430\u043a\u0442\u0438\u043a\u0443\u043c (\u0438\u0441\u043a\u043b\u044e\u0447\u0438\u0442\u044c) \u2022 \u0421\u0442\u0430\u0436\u0451\u0440 (Intern) \u2022 \u0413\u043e\u0442\u043e\u0432 \u043a \u0443\u0434\u0430\u043b\u0435\u043d\u043d\u043e\u0439 \u0440\u0430\u0431\u043e\u0442\u0435 \u2022 \u0413\u043e\u0442\u043e\u0432 \u043a \u043f\u0435\u0440\u0435\u0435\u0437\u0434\u0443 \u2022 \u0421 \u043e\u0431\u0440\u0430\u0437\u043e\u0432\u0430\u043d\u0438\u0435\u043c \u2022 \u0421 \u0434\u043e\u043f. \u043e\u0431\u0440\u0430\u0437\u043e\u0432\u0430\u043d\u0438\u0435\u043c \u2022 \u0421 \u043e\u043f\u044b\u0442\u043e\u043c \u0440\u0430\u0431\u043e\u0442\u044b \u2022 \u0423\u043a\u0430\u0437\u0430\u043d\u0430 \u0437\u0430\u0440\u043f\u043b\u0430\u0442\u0430 \u2022 \u0423\u0447\u0430\u0441\u0442\u043d\u0438\u043a \u0418\u0422-\u0441\u043e\u043e\u0431\u0449\u0435\u0441\u0442\u0432 \u2022 \u0417\u0430\u0445\u043e\u0434\u0438\u043b\u0438 \u043d\u0430 \u0441\u0430\u0439\u0442 \u0437\u0430 3 \u043c\u0435\u0441\u044f\u0446\u0430 \u2022 \u041b\u0443\u0433\u0430\u043d\u0441\u043a (\u0438\u0441\u043a\u043b\u044e\u0447\u0438\u0442\u044c) \u2022 \u041f\u043e \u0432\u043e\u0437\u0440\u0430\u0441\u0442\u0430\u043d\u0438\u044e \u0437\u0430\u0440\u043f\u043b\u0430\u0442\u044b \u2022 [\u0410\u043d\u0434]",
-        #     "href": "/resumes?company_ids%5B%5D=355898672&currency=RUR&current_company=true&edc_ids%5B%5D=35&exclude_locations=true&locations%5B%5D=c_909&not_companies=true&not_edcs=true&not_universities=true&order=salary_asc&period=three_months&q=%D0%90%D0%BD%D0%B4&qid=1&relocation=true&remote=true&s%5B%5D=2&salary=200000&university_ids%5B%5D=82038&with_add_eds=true&with_educations=true&with_experiences=true&with_salary=true&with_social_ratings=true",
-        #     "filters": {
-        #         "searchFields": [],
-        #         "qualification": 1,
-        #         "salary": 200000,
-        #         "currency": "RUR",
-        #         "remoteWork": true,
-        #         "relocation": true,
-        #         "hasSalary": true,
-        #         "hasHighEducation": true,
-        #         "hasExtraEducation": true,
-        #         "hasExperience": true,
-        #         "hasSocialRatings": true,
-        #         "excludeLocation": true,
-        #         "excludeCompany": true,
-        #         "excludeUniversity": true,
-        #         "excludeExtraEducation": true,
-        #         "isCurrentCompany": true,
-        #         "activityPeriod": "three_months",
-        #         "s": [
-        #             2
-        #         ],
-        #         "locations": [
-        #             "c_909"
-        #         ],
-        #         "companies": [
-        #             355898672
-        #         ],
-        #         "universities": [
-        #             82038
-        #         ],
-        #         "extraEducations": [
-        #             35
-        #         ]
-        #     },
-        #     "query": "\u0410\u043d\u0434",
-        #     "order": "salary_asc",
-        #     "filtersData": {
-        #         "locations": [
-        #             {
-        #                 "value": "c_909",
-        #                 "title": "\u041b\u0443\u0433\u0430\u043d\u0441\u043a"
-        #             }
-        #         ],
-        #         "skills": [],
-        #         "companies": [
-        #             {
-        #                 "value": 355898672,
-        #                 "title": "\u041c\u0422\u0421"
-        #             }
-        #         ],
-        #         "universities": [
-        #             {
-        #                 "value": 82038,
-        #                 "title": "\u0418\u041f\u041a \u0438 \u041f\u0420\u041d\u041e \u041c\u041e",
-        #                 "subtitle": "\u041c\u043e\u0441\u043a\u0432\u0430, \u0418\u043d\u0441\u0442\u0438\u0442\u0443\u0442 \u043f\u043e\u0432\u044b\u0448\u0435\u043d\u0438\u044f \u043a\u0432\u0430\u043b\u0438\u0444\u0438\u043a\u0430\u0446\u0438\u0438 \u0438 \u043f\u0440\u043e\u0444\u0435\u0441\u0441\u0438\u043e\u043d\u0430\u043b\u044c\u043d\u043e\u0439 \u043f\u0435\u0440\u0435\u043f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u043a\u0438 \u0440\u0430\u0431\u043e\u0442\u043d\u0438\u043a\u043e\u0432 \u043d\u0430\u0440\u043e\u0434\u043d\u043e\u0433\u043e \u043e\u0431\u0440\u0430\u0437\u043e\u0432\u0430\u043d\u0438\u044f \u041c\u043e\u0441\u043a\u043e\u0432\u0441\u043a\u043e\u0439 \u043e\u0431\u043b\u0430\u0441\u0442\u0438"
-        #             }
-        #         ],
-        #         "extraEducations": [
-        #             {
-        #                 "value": 35,
-        #                 "title": "\u042f\u043d\u0434\u0435\u043a\u0441 \u041f\u0440\u0430\u043a\u0442\u0438\u043a\u0443\u043c"
-        #             }
-        #         ]
-        #     }
-        # }
-        filters = {
+        """
+        Converts filter into query params.
+
+        :param id_: Filter ID
+        :return:
+        """
+        _filters = {
             f["id"]: f for f
             in self.get_resumes_data()["search"]["savedFilters"]
         }
-        filter_data = filters[id_]
-        # TODO:
-        return QueryParams({
-            "q": filter_data["query"],
-            "order": filter_data["order"],
-
-            "fields": filter_data["filters"]["searchFields"],
-            "s": filter_data["filters"]["s"],
-            "qid": filter_data["filters"]["qualification"],
-            "skills": filter_data["filters"]["skills"],
-            "salary": filter_data["filters"]["salary"],
-            "currency": filter_data["filters"]["currency"],  # Case-sensitive? (Default "RUR")
-            "locations": filter_data["filters"]["locations"],
-            "exclude_locations": filter_data["filters"]["excludeLocation"],
-            "company_ids": filter_data["filters"]["companies"],
-            "not_companies": filter_data["filters"]["excludeCompany"],
-            "not_universities": filter_data["filters"]["excludeUniversity"],
-            "not_edcs": filter_data["filters"]["excludeExtraEducation"],
-
-            # TODO: Not working, availability is always null
-            # TODO: "work_state": filter_data["filters"]["availability"],
-
-            "edc_ids": filter_data["filters"]["extraEducations"],
-            "university_ids": filter_data["filters"]["universities"],
-            "current_company": filter_data["filters"]["isCurrentCompany"],
-            "relocation": filter_data["filters"]["relocation"],
-            "remote": filter_data["filters"]["remoteWork"],
-            "period": filter_data["filters"]["activityPeriod"],
-            # С высшим образованием
-            "with_educations": filter_data["filters"]["hasHighEducation"],
-            # С дополнительным образованием
-            "with_add_eds": filter_data["filters"]["hasExtraEducation"],
-            # С опытом работы
-            "with_experiences": filter_data["filters"]["hasExperience"],
-            # Указана зарплата
-            "with_salary": filter_data["filters"]["hasSalary"],
-            # Участник ИТ-сообществ
-            "with_social_ratings": filter_data["filters"]["hasSocialRatings"],
-        })
+        filter_data = _filters[id_]
+        return self._career_filter_data_to_params(filter_data)
 
     def apply_career_filter(self, id_: int) -> dict[str, Any]:
         """
-        Apply saved filer on server side.
-        NOTE: It might be a bit slower as it needs an extra request to get all
-        filters.
+        Apply saved filer by filter ID.
 
         :param id_: Filter ID
         :return:
@@ -514,11 +877,23 @@ class HABRCareerResumesMixin:
         query = params.query(doseq=True, bool_as_str=True)
         return self.get(f"frontend/resumes?{query}")
 
-    def delete_careers_filter(self, id_: int) -> dict[str, Any]:
+    def apply_career_filter_data(self, filter_data: dict) -> dict[str, Any]:
         """
+        Apply saved filer by filter data.
+
+        :param filter_data:
+        :return:
+        """
+        params = self._career_filter_data_to_params(filter_data)
+        query = params.query(doseq=True, bool_as_str=True)
+        return self.get(f"frontend/resumes?{query}")
+
+    def delete_careers_filter(self, id_: int) -> dict[str, str | int]:
+        """
+        Delete filter.
 
         :param id_: Filter ID
-        :return: Example:
+        :return: Examples:
             {"status": "ok", "id": 71930}
         """
         path = f"frontend/user_filters/resumes/{id_}"
@@ -527,17 +902,19 @@ class HABRCareerResumesMixin:
     def get_universities_suggestions(
             self,
             search: str,
-    ) -> list[dict[str, Any]]:
+    ) -> list[dict[str, str | int]]:
         """
+        Find universities by text query.
+        Util method used in filters.
 
-        :param search:
-        :return: Example:
+        :param search: Search query
+        :return: Examples:
             {
                 "list": [
                     {
-                        "value": 82038,
-                        "title": "ИПК и ПРНО МО",
-                        "subtitle": "Москва, Институт повышения квалифик..."
+                        "value": 1683,
+                        "title": "МГУ им. Ломоносова",
+                        "subtitle": "Москва, Московский государственный университет имени М.В. Ломоносова"
                     },
                     ...
                 ]
@@ -551,9 +928,11 @@ class HABRCareerResumesMixin:
             search: str,
     ) -> list[dict[str, str | int]]:
         """
+        Find education centers by text query.
+        Util method used in filters.
 
-        :param search:
-        :return: Example:
+        :param search: Search query
+        :return: Examples:
             {
                 "list": [
                     {

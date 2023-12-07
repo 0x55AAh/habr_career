@@ -1,6 +1,3 @@
-from typing import Any
-
-
 # noinspection PyUnresolvedReferences
 class HABRCareerToolsMixin:
     def get_cities_suggestions(self, search: str) -> list[dict[str, str]]:
@@ -9,7 +6,7 @@ class HABRCareerToolsMixin:
         Working different when logged in. This is not a big deal, so we do not
         pass auth data on the request.
 
-        :param search:
+        :param search: Search query
         :return: Examples:
             {
                 "cities": [
@@ -32,7 +29,7 @@ class HABRCareerToolsMixin:
         Alias is passed as unique key.
         Used in filters.
 
-        :param search:
+        :param search: Search query
         :return: Examples:
             {
                 "skills": [
@@ -55,7 +52,7 @@ class HABRCareerToolsMixin:
         ID is passed as unique key.
         Used in filters.
 
-        :param search:
+        :param search: Search query
         :return: Examples:
             {
                 "list": [
@@ -110,6 +107,7 @@ class HABRCareerToolsMixin:
 
     def get_similar_skills(self) -> list[dict[str, str | int]]:
         """
+        Get similar skills.
 
         :return: Examples:
             {
@@ -127,6 +125,7 @@ class HABRCareerToolsMixin:
 
     def get_similar_skills_extended(self) -> list[dict[str, str | int]]:
         """
+        Get similar skills with additional data.
 
         :return: Examples:
             [
@@ -148,10 +147,8 @@ class HABRCareerToolsMixin:
                 ...
             ]
         """
-        return self.get(
-            "suggest/skills/similar",
-            base_url="https://career.habr.com/",
-        )
+        path = "suggest/skills/similar"
+        return self.get(path, base_url="https://career.habr.com/")
 
     # TODO: https://career.habr.com/api/frontend_v1/specializations/group_dative?q=development
     # TODO: https://career.habr.com/api/frontend_v1/specializations/spec_genitive?q=zerocoder&group=no-code

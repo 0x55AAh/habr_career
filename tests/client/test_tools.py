@@ -21,3 +21,11 @@ class ToolsTestCase(BasicTestCase):
     def test_get_currencies(self):
         result = self.client.get_currencies()
         self.assertIsInstance(result, list)
+
+    def test_get_similar_skills(self):
+        result = self.client.get_similar_skills()
+        self.assertIsInstance(result, list)
+
+    def test_get_similar_skills_extended(self):
+        result = self.client.get_similar_skills_extended()
+        self.assertIsInstance(result, list)

@@ -1,6 +1,6 @@
 import json
 from collections import UserDict
-from enum import Enum, verify, UNIQUE, StrEnum
+from enum import Enum, verify, UNIQUE, StrEnum, IntEnum
 from typing import Any
 from urllib.parse import urlencode
 
@@ -8,6 +8,14 @@ from bs4 import BeautifulSoup
 
 
 class HABRCareerClientError(Exception):
+    pass
+
+
+class NotAuthorizedError(HABRCareerClientError):
+    pass
+
+
+class LogoutError(HABRCareerClientError):
     pass
 
 
@@ -28,6 +36,17 @@ def get_ssr_json(html_code: str) -> dict:
     }
     el = soup.find(**search_params)
     return json.loads(el.get_text())
+
+
+def cleanup_tags(html_code: str) -> str:
+    """
+    Remove HTML tags from input string.
+
+    :param html_code:
+    :return:
+    """
+    soup = BeautifulSoup(html_code, features="html.parser")
+    return soup.text
 
 
 def bool_to_str(value: bool | None) -> str | None:
@@ -80,6 +99,15 @@ class Qualification(StrEnum):
     MIDDLE = "Middle"
     SENIOR = "Senior"
     LEAD = "Lead"
+
+
+@verify(UNIQUE)
+class QualificationID(IntEnum):
+    INTERN = 1
+    JUNIOR = 3
+    MIDDLE = 4
+    SENIOR = 5
+    LEAD = 6
 
 
 @verify(UNIQUE)

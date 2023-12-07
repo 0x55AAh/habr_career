@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from functools import partialmethod
 from typing import Any
+from urllib.parse import urlparse, parse_qsl
 
 from requests import Request, Session, Response, JSONDecodeError
 
@@ -18,7 +19,7 @@ from habr.career.client.salaries import HABRCareerSalariesMixin
 from habr.career.client.tools import HABRCareerToolsMixin
 from habr.career.client.users import HABRCareerUsersMixin
 from habr.career.client.vacancies import HABRCareerVacanciesMixin
-from habr.career.utils import get_ssr_json
+from habr.career.utils import get_ssr_json, LogoutError, NotAuthorizedError
 
 __all__ = [
     "Authenticator",
@@ -39,6 +40,8 @@ __all__ = [
 
     "HABRCareerBaseClient",
     "HABRCareerClient",
+
+    "logout",
 ]
 
 
@@ -88,6 +91,36 @@ class TokenAuthenticator(Authenticator):
 
     def login(self) -> None:
         """Nothing to do here as token has already configured."""
+
+    def logout(self) -> None:
+        """Invalidates auth token."""
+
+        # TODO: API endpoint not discovered yet
+        response = self.client.post(
+            "users/sign_out",
+            base_url="https://career.habr.com/",
+            data={"_method": "delete"},
+            headers={"X-Csrf-Token": self.client.logout_token},
+            auth_required=True,
+        )
+
+        params = dict(parse_qsl(urlparse(response.url).query))
+
+        if not all([response.ok, "token" in params]):
+            raise LogoutError
+
+        # TODO:
+        #   In web client we have a number of other sign out operations
+        #   here performed by token got from previous request.
+        #   Skipping for now. Feel free to add if you want to.
+
+        # Ensure the token is no longer valid
+        try:
+            self.client.user
+        except NotAuthorizedError:
+            self.token = None
+        else:
+            raise LogoutError
 
 
 class HABRCareerBaseClient:
@@ -141,9 +174,10 @@ class HABRCareerBaseClient:
 
         if auth_required:
             if method in self.CSRF_PROTECTED_HTTP_METHODS:
-                request.headers["X-Csrf-Token"] = self.csrf_token
-            request.cookies["remember_user_token"] = self.auth.token
-            request.cookies["_career_session"] = self._sess
+                self.set_header(request,
+                                "X-Csrf-Token", lambda: self.csrf_token)
+            self.set_cookie(request, "remember_user_token", self.auth.token)
+            self.set_cookie(request, "_career_session", self._sess)
 
         response = session.send(request.prepare())
 
@@ -158,6 +192,27 @@ class HABRCareerBaseClient:
                 return response
 
         return data[key] if key else data
+
+    @staticmethod
+    def _set_request_data(
+            field: str,
+            request: Request,
+            name: str,
+            value: Any,
+    ) -> None:
+        data = getattr(request, field)
+        if name not in data:
+            if callable(value):
+                value = value()
+            data[name] = value
+
+    @classmethod
+    def set_cookie(cls, request: Request, name: str, value: Any) -> None:
+        cls._set_request_data("cookies", request, name, value)
+
+    @classmethod
+    def set_header(cls, request: Request, name: str, value: Any) -> None:
+        cls._set_request_data("headers", request, name, value)
 
     def make_url(
             self,
@@ -197,6 +252,11 @@ class HABRCareerBaseClient:
 
     csrf_token = authenticity_token
 
+    def logout(self) -> None:
+        """Invalidates auth token."""
+        self.auth.logout()
+        self._sess = None
+
 
 class HABRCareerClient(
     HABRCareerFriendshipsMixin,
@@ -214,3 +274,14 @@ class HABRCareerClient(
     HABRCareerBaseClient
 ):
     """Fully featured client."""
+
+
+def logout(token: str) -> None:
+    """
+    Invalidates auth token.
+
+    :param token:
+    :return:
+    """
+    client = HABRCareerClient(auth=TokenAuthenticator(token=token))
+    client.logout()

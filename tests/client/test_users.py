@@ -42,3 +42,7 @@ class UsersTestCase(BasicTestCase):
         result = self.client.get_skills_in_my_specialization(limit=5)
         self.assertIsInstance(result, list)
         self.assertLessEqual(len(result), 5)
+
+    def test_get_cv(self):
+        result = self.client.get_cv("test")
+        self.assertIsInstance(result, bytes)

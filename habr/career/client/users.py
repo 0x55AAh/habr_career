@@ -2,7 +2,7 @@ from enum import StrEnum, verify, UNIQUE
 from functools import cached_property
 from typing import Any
 
-from habr.career.utils import HABRCareerClientError, ComplainReason
+from habr.career.utils import NotAuthorizedError, ComplainReason
 
 
 @verify(UNIQUE)
@@ -50,7 +50,7 @@ class HABRCareerUsersMixin:
         """
         data = self.get("frontend_v1/users/me", auth_required=True)
         if not data:
-            raise HABRCareerClientError("Not authorized")
+            raise NotAuthorizedError
         return data
 
     @cached_property
@@ -61,6 +61,17 @@ class HABRCareerUsersMixin:
         :return:
         """
         return self.user["user"]["alias"]
+
+    @property
+    def logout_token(self) -> str:
+        """
+        Get user token for performing logout operation.
+        Note: this is not the same as authenticity_token but can be used
+              as a csrf_token.
+
+        :return:
+        """
+        return self.user["meta"]["logoutToken"]
 
     @property
     def subscribe_status(self) -> dict[str, Any]:
@@ -179,19 +190,21 @@ class HABRCareerUsersMixin:
         """
         return self.get_cv(self.username, fmt)
 
-    def complain_user(
+    def complain_on_user(
             self,
             username: str,
             reason: ComplainReason,
-    ) -> dict[str, Any]:
+    ) -> dict[str, str]:
         """
+        Complain on user.
 
         :param username: User alias
-        :param reason:
-        :return:
+        :param reason: Complaint reason
+        :return: Examples:
+            {"status": "accepted"}
         """
-        return self.post(  # TODO: ensure method
-            path=f"frontend/users/{username}/complaints",
-            json={"reason": reason.value},  # TODO: Query parameters?
+        return self.post(
+            f"frontend/users/{username}/complaints",
+            json={"reason": reason.value},
             auth_required=True,
         )
