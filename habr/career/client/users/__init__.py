@@ -3,6 +3,7 @@ from functools import cached_property
 from typing import Any
 
 from habr.career.utils import NotAuthorizedError, ComplainReason
+from .models import User
 
 
 @verify(UNIQUE)
@@ -15,7 +16,7 @@ class CVFormat(StrEnum):
 # noinspection PyUnresolvedReferences
 class HABRCareerUsersMixin:
     @property
-    def user(self) -> dict[str, Any]:
+    def user(self) -> User:
         """
         Get current (logged in) user data.
         If user is not logged in or using incorrect token we will get an empty
@@ -48,10 +49,11 @@ class HABRCareerUsersMixin:
                 }
             }
         """
-        data = self.get("frontend_v1/users/me", auth_required=True)
+        path = "frontend_v1/users/me"
+        data = self.get(path, auth_required=True)
         if not data:
             raise NotAuthorizedError
-        return data
+        return User(**data)
 
     @cached_property
     def username(self) -> str:
@@ -60,7 +62,7 @@ class HABRCareerUsersMixin:
 
         :return:
         """
-        return self.user["user"]["alias"]
+        return self.user.user.alias
 
     @property
     def logout_token(self) -> str:
@@ -71,7 +73,7 @@ class HABRCareerUsersMixin:
 
         :return:
         """
-        return self.user["meta"]["logoutToken"]
+        return self.user.meta.logout_token
 
     @property
     def subscribe_status(self) -> dict[str, Any]:
@@ -134,8 +136,12 @@ class HABRCareerUsersMixin:
                 ]
             }
         """
-        path = f"frontend_v1/skills/my?limit={limit}"
-        return self.get(path, auth_required=True, key="skills")
+        return self.get(
+            "frontend_v1/skills/my",
+            auth_required=True,
+            key="skills",
+            params={"limit": limit},
+        )
 
     def get_skills_in_my_specialization(
             self,
@@ -162,8 +168,12 @@ class HABRCareerUsersMixin:
                 ]
             }
         """
-        path = f"frontend_v1/skills/my_specialization?limit={limit}"
-        return self.get(path, auth_required=True, key="skills")
+        return self.get(
+            "frontend_v1/skills/my_specialization",
+            auth_required=True,
+            key="skills",
+            params={"limit": limit},
+        )
 
     def get_cv(self, username: str, fmt: CVFormat = CVFormat.PDF) -> bytes:
         """

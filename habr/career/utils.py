@@ -1,10 +1,21 @@
+from __future__ import annotations
+
 import json
 from collections import UserDict
 from enum import Enum, verify, UNIQUE, StrEnum, IntEnum
-from typing import Any
-from urllib.parse import urlencode
+from typing import Any, Self, Iterator
 
 from bs4 import BeautifulSoup
+from pydantic import BaseModel, ValidationError
+
+type PydanticModel = BaseModel
+
+registered_errors: list[type[ResponseError]] = []
+
+
+def register_error(cls):
+    registered_errors.append(cls)
+    return cls
 
 
 class HABRCareerClientError(Exception):
@@ -17,6 +28,68 @@ class NotAuthorizedError(HABRCareerClientError):
 
 class LogoutError(HABRCareerClientError):
     pass
+
+
+class BaseResponseError(HABRCareerClientError):
+    schema: type[PydanticModel] = None
+
+    def __init__(self, **kwargs):
+        super().__init__(self.get_reason())
+        self.data = kwargs
+
+    def get_reason(self) -> str:
+        raise NotImplementedError
+
+    @classmethod
+    def check_data(cls, data: dict) -> None:
+        try:
+            cls.schema(**data)
+        except ValidationError:
+            return
+        raise cls(**data)
+
+
+@register_error
+class ResponseError(BaseResponseError):
+    """
+    Standard error response.
+    Examples:
+        {"status": "500", "error": "Internal Server Error"}
+        {"error": "Not found"}
+        {"status": "422", "error": "Unprocessable Entity"}
+    """
+
+    class Schema(BaseModel):
+        status: int | None = None
+        error: str
+
+    schema = Schema
+
+    def get_reason(self):
+        return self.data["error"]
+
+
+class ConcurrentJobs:
+    def __init__(self, max_workers: int = None):
+        self.max_workers = max_workers
+        self.items = []
+
+    def register(self, func, *args, **kwargs) -> Self:
+        self.items.append((func, args, kwargs))
+        return self
+
+    def run(self) -> Iterator[Any]:
+        from concurrent.futures import ThreadPoolExecutor
+
+        fs = []
+        with ThreadPoolExecutor(self.max_workers) as executor:
+            for job in self.items:
+                func, args, kwargs = job
+                f = executor.submit(func, *args, **kwargs)
+                fs.append(f)
+
+        for f in fs:
+            yield f.result()
 
 
 def get_ssr_json(html_code: str) -> dict:
@@ -38,7 +111,7 @@ def get_ssr_json(html_code: str) -> dict:
     return json.loads(el.get_text())
 
 
-def cleanup_tags(html_code: str) -> str:
+def cleanup_tags(html_code: str, **kwargs) -> str:
     """
     Remove HTML tags from input string.
 
@@ -46,7 +119,7 @@ def cleanup_tags(html_code: str) -> str:
     :return:
     """
     soup = BeautifulSoup(html_code, features="html.parser")
-    return soup.text
+    return soup.get_text(**kwargs)
 
 
 def bool_to_str(value: bool | None) -> str | None:
@@ -58,6 +131,24 @@ def bool_to_str(value: bool | None) -> str | None:
     """
     if value is not None:
         return str(value).lower()
+
+
+class Convertor:
+    @classmethod
+    def _convert(cls, value, **options):
+        options = options or {}
+        bool_as_str: bool = options.get("bool_as_str", False)
+        if isinstance(value, bool):
+            value = str(value).lower() if bool_as_str else int(value)
+        elif isinstance(value, Enum):
+            value = value.value
+        return value
+
+    def map(self, data: dict, **options) -> dict:
+        return {
+            key: self._convert(value, **options)
+            for key, value in data.items()
+        }
 
 
 class QueryParams(UserDict):
@@ -84,6 +175,8 @@ class QueryParams(UserDict):
         :param bool_as_str:
         :return:
         """
+        from urllib.parse import urlencode
+
         data = {
             k: self._convert(v, bool_as_str)
             for k, v in self.data.items()
@@ -133,16 +226,10 @@ class Pagination:
 @verify(UNIQUE)
 class ComplainReason(StrEnum):
     # TODO: Ensure it fits both conversations and users
-    # prohibited: Профиль содержит запрещенный контент
-    # ads: Профиль содержит одну рекламу
-    # impersonate: Выдает себя за другого
-    PROHIBITED = "prohibited"
-    ADS = "ads"
-    IMPERSONATE = "impersonate"
+    PROHIBITED = "prohibited"    # Профиль содержит запрещенный контент
+    ADS = "ads"                  # Профиль содержит одну рекламу
+    IMPERSONATE = "impersonate"  # Выдает себя за другого
 
-    # insult: Ведет себя оскорбительно
-    # spam: Рассылает спам
-    # other: Другое
-    SPAM = "spam"
-    INSULT = "insult"
-    OTHER = "other"
+    SPAM = "spam"                # Рассылает спам
+    INSULT = "insult"            # Ведет себя оскорбительно
+    OTHER = "other"              # Другое

@@ -3,6 +3,7 @@ from functools import partialmethod
 from typing import Any
 from urllib.parse import urlparse, parse_qsl
 
+from pydantic import ValidationError
 from requests import Request, Session, Response, JSONDecodeError
 
 from habr.career.client.companies import (
@@ -19,7 +20,24 @@ from habr.career.client.salaries import HABRCareerSalariesMixin
 from habr.career.client.tools import HABRCareerToolsMixin
 from habr.career.client.users import HABRCareerUsersMixin
 from habr.career.client.vacancies import HABRCareerVacanciesMixin
-from habr.career.utils import get_ssr_json, LogoutError, NotAuthorizedError
+from habr.career.utils import (
+    get_ssr_json,
+    LogoutError,
+    NotAuthorizedError,
+    ResponseError,
+    Convertor,
+    PydanticModel,
+    registered_errors,
+    HABRCareerClientError,
+)
+
+# TODO
+# import logging
+# log = logging.getLogger("urllib3")
+#
+# log.setLevel(logging.DEBUG)
+# from http.client import HTTPConnection
+# HTTPConnection.debuglevel = 1
 
 __all__ = [
     "Authenticator",
@@ -151,8 +169,11 @@ class HABRCareerBaseClient:
             key: str | None = None,
             base_url: str | None = None,
             ssr: bool = False,
+            cls: type[PydanticModel] = None,
+            params_options: dict[str, Any] | None = None,
+            data_options: dict[str, Any] | None = None,
             **kwargs
-    ) -> Response | dict[str, Any]:
+    ) -> Response | dict[str, Any] | PydanticModel:
         """
         Basic request method.
 
@@ -162,10 +183,30 @@ class HABRCareerBaseClient:
         :param key:
         :param base_url:
         :param ssr:
+        :param cls: Pydantic model
+        :param params_options:
+        :param data_options:
         :param kwargs:
         :return:
         """
         url = self.make_url(path, base_url, ssr)
+
+        params_options = params_options or {}
+        data_options = data_options or {}
+
+        convertor = Convertor()
+
+        params = kwargs.get("params")
+        if params is not None:
+            kwargs["params"] = convertor.map(params, **params_options)
+
+        data = kwargs.get("data")
+        if data is not None:
+            kwargs["data"] = convertor.map(data, **data_options)
+
+        json = kwargs.get("json")
+        if json is not None:
+            kwargs["json"] = convertor.map(json, **data_options)
 
         kwargs["cookies"] = kwargs.get("cookies") or {}
 
@@ -183,6 +224,13 @@ class HABRCareerBaseClient:
 
         self._sess = response.cookies.get("_career_session")
 
+        if not response.ok:
+            raise ResponseError(
+                status=response.status_code,
+                error=response.reason
+            )
+
+        # JSON data or Response
         if ssr:
             data = get_ssr_json(response.text)
         else:
@@ -190,6 +238,19 @@ class HABRCareerBaseClient:
                 data = response.json()
             except JSONDecodeError:
                 return response
+
+        # Make sure response data is not error
+        # Validate data against registered errors
+        for cls in registered_errors:
+            cls.check_data(data)
+
+        # JSON data processing
+        if cls is not None:
+            try:
+                obj = cls(**data)
+                return getattr(obj, key) if key else obj
+            except ValidationError:
+                raise HABRCareerClientError
 
         return data[key] if key else data
 

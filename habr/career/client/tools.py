@@ -19,8 +19,8 @@ class HABRCareerToolsMixin:
                 ]
             }
         """
-        path = f"frontend_v1/suggestions/cities?q={search}"
-        return self.get(path, key="cities")
+        path = "frontend_v1/suggestions/cities"
+        return self.get(path, key="cities", params={"q": search})
 
     def get_skills_alias_suggestions(
             self, search: str) -> list[dict[str, str]]:
@@ -42,8 +42,8 @@ class HABRCareerToolsMixin:
                 ]
             }
         """
-        path = f"frontend_v1/suggestions/skills?q={search}"
-        return self.get(path, key="skills")
+        path = "frontend_v1/suggestions/skills"
+        return self.get(path, key="skills", params={"q": search})
 
     def get_skills_ids_suggestions(
             self, search: str) -> list[dict[str, int | str]]:
@@ -65,8 +65,8 @@ class HABRCareerToolsMixin:
                 ]
             }
         """
-        path = f"frontend/suggestions/skills?term={search}"
-        return self.get(path, key="list")
+        path = "frontend/suggestions/skills"
+        return self.get(path, key="list", params={"term": search})
 
     def get_qualifications(self) -> list[dict[str, str | int]]:
         """

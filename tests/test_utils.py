@@ -1,4 +1,5 @@
 import unittest
+from time import sleep, time
 
 from parameterized import parameterized
 
@@ -7,6 +8,7 @@ from habr.career.utils import (
     cleanup_tags,
     bool_to_str,
     QueryParams,
+    ConcurrentJobs,
 )
 
 
@@ -52,3 +54,15 @@ class UtilsTestCase(unittest.TestCase):
         })
         query = params.query(doseq, bool_as_str)
         self.assertEqual(query, expected_query)
+
+    def test_concurrent_jobs(self) -> None:
+        jobs = ConcurrentJobs()
+
+        for _ in range(10):
+            jobs.register(sleep, 1)
+
+        t1 = time()
+        list(jobs.run())
+        dt = time() - t1
+
+        self.assertAlmostEqual(dt, 1, delta=0.01)

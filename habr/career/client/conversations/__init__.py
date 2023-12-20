@@ -2,7 +2,14 @@ from typing import Any, TypedDict, Unpack
 
 from requests.status_codes import codes
 
-from habr.career.utils import Pagination, QueryParams, ComplainReason
+from habr.career.utils import Pagination, ComplainReason
+from .models import (
+    Conversations,
+    Conversation,
+    Messages,
+    Message,
+    Templates,
+)
 
 
 class TemplateParams(TypedDict):
@@ -22,12 +29,12 @@ class HABRCareerConversationsMixin:
             self,
             search: str | None = None,
             page: int = Pagination.INIT_PAGE,
-    ) -> dict[str, Any]:
+    ) -> Conversations:
         """
         Get all conversations.
 
         :param search:
-        :param page:
+        :param page: Page number
         :return: Example:
             {
                 "conversationObjects": {
@@ -66,18 +73,24 @@ class HABRCareerConversationsMixin:
             }
             {"status": "500", "error": "Internal Server Error"}
         """
-        path = "frontend/conversations"
-        params = QueryParams({"page": page, "q": search})
-        if search:
-            path += "/search"
-        path += f"?{params.query()}"
-        return self.get(path, auth_required=True)
+        search_part = "/search" if search else ""
+        return self.get(
+            f"frontend/conversations{search_part}",
+            cls=Conversations,
+            auth_required=True,
+            params={"page": page, "q": search},
+        )
 
-    def get_conversation(self, username: str) -> dict[str, Any]:
+    def get_conversation(
+            self,
+            username: str,
+            page: int = Pagination.INIT_PAGE,
+    ) -> Conversation:
         """
         Get or create conversation with a specified user.
 
         :param username: User alias
+        :param page: Page number
         :return: Example:
             {
                 "theme": "",
@@ -108,16 +121,47 @@ class HABRCareerConversationsMixin:
             {"error": "Not found"}
             {"status": "500", "error": "Internal Server Error"}
         """
-        path = f"frontend/conversations/{username}?valid=true"
-        return self.get(path, auth_required=True)
+        return self.get(
+            f"frontend/conversations/{username}",
+            cls=Conversation,
+            auth_required=True,
+            params={"valid": True, "page": page},
+            params_options={
+                "bool_as_str": True,
+            },
+        )
 
     connect = get_conversation
 
-    def get_messages(self, username: str) -> dict[str, Any]:
+    def get_conversation_data(
+            self,
+            username: str,
+            page: int = Pagination.INIT_PAGE,
+    ) -> dict[str, Any]:
+        """
+
+        :param username: User alias
+        :param page: Page number
+        :return: Example:
+        """
+        return self.get(
+            f"conversations/{username}",
+            base_url="https://career.habr.com",
+            auth_required=True,
+            ssr=True,
+            params={"page": page},
+        )
+
+    def get_messages(
+            self,
+            username: str,
+            page: int = Pagination.INIT_PAGE,
+    ) -> Messages:
         """
         Get all messages related to a conversation with a specified user.
 
         :param username: User alias
+        :param page: Page number
         :return: Example:
             {
                 "data": [
@@ -139,10 +183,14 @@ class HABRCareerConversationsMixin:
             {"error": "Not found"}
             {"error": "Войдите, прежде чем продолжить."}
         """
-        path = f"frontend/conversations/{username}/messages"
-        return self.get(path, auth_required=True)
+        return self.get(
+            f"frontend/conversations/{username}/messages",
+            cls=Messages,
+            auth_required=True,
+            params={"page": page},
+        )
 
-    def get_templates(self) -> dict[str, Any]:
+    def get_templates(self) -> Templates:
         """
         Get all created templates.
 
@@ -156,7 +204,7 @@ class HABRCareerConversationsMixin:
             {"error": "Войдите, прежде чем продолжить."}
         """
         path = "frontend/conversations/templates"
-        return self.get(path, auth_required=True)
+        return self.get(path, cls=Templates, auth_required=True)
 
     # def create_template(
     #         self,
@@ -301,7 +349,7 @@ class HABRCareerConversationsMixin:
 
     disconnect = delete_conversation
 
-    def send_message(self, username: str, message: str) -> dict[str, Any]:
+    def send_message(self, username: str, message: str) -> Message:
         """
         Send message to specified user.
 
@@ -330,6 +378,7 @@ class HABRCareerConversationsMixin:
         return self.post(
             f"frontend/conversations/{username}/messages",
             json={"body": message},
+            cls=Message,
             auth_required=True,
         )
 

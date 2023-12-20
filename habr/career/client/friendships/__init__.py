@@ -1,6 +1,5 @@
-from typing import Any
-
 from habr.career.utils import Pagination
+from .models import Friends, FriendshipRequests
 
 
 # noinspection PyUnresolvedReferences
@@ -10,7 +9,7 @@ class HABRCareerFriendshipsMixin:
     def get_friends(
             self,
             page: int = Pagination.INIT_PAGE,
-    ) -> dict[str, Any]:
+    ) -> Friends:
         """
         Get friends list.
 
@@ -40,13 +39,17 @@ class HABRCareerFriendshipsMixin:
                 }
             }
         """
-        path = f"frontend/users/{self.username}/friendships?page={page}"
-        return self.get(path, auth_required=True)
+        return self.get(
+            f"frontend/users/{self.username}/friendships",
+            cls=Friends,
+            auth_required=True,
+            params={"page": page},
+        )
 
     def get_friendship_requests(
             self,
             page: int = Pagination.INIT_PAGE,
-    ) -> dict[str, Any]:
+    ) -> FriendshipRequests:
         """
         Get friendship requests.
 
@@ -76,9 +79,12 @@ class HABRCareerFriendshipsMixin:
                 }
             }
         """
-        query = f"page={page}"
-        path = f"frontend/users/{self.username}/friendship_requests?{query}"
-        return self.get(path, auth_required=True)
+        return self.get(
+            f"frontend/users/{self.username}/friendship_requests",
+            cls=FriendshipRequests,
+            auth_required=True,
+            params={"page": page},
+        )
 
     def approve_friend(self, username: str) -> dict[str, str]:
         """
@@ -110,8 +116,11 @@ class HABRCareerFriendshipsMixin:
         :return: Examples:
             {"status": "pending"}
         """
-        path = f"frontend/users/{username}/friendships?status=none"
-        return self.post(path, auth_required=True)
+        return self.post(
+            f"frontend/users/{username}/friendships",
+            auth_required=True,
+            params={"status": "none"},
+        )
 
     def cancel_pending_friendship(self, username: str) -> dict[str, str]:
         """
@@ -121,8 +130,11 @@ class HABRCareerFriendshipsMixin:
         :return: Examples:
             {"status": "none"}
         """
-        path = f"frontend/users/{username}/friendships?status=pending"
-        return self.post(path, auth_required=True)
+        return self.post(
+            f"frontend/users/{username}/friendships",
+            auth_required=True,
+            params={"status": "pending"},
+        )
 
     def delete_friend(self, username: str) -> dict[str, str]:
         """
@@ -132,5 +144,8 @@ class HABRCareerFriendshipsMixin:
         :return: Examples:
             {"status": "none"}
         """
-        path = f"frontend/users/{username}/friendships?status=accepted"
-        return self.post(path, auth_required=True)
+        return self.post(
+            f"frontend/users/{username}/friendships",
+            auth_required=True,
+            params={"status": "accepted"},
+        )

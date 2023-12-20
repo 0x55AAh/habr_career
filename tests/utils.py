@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from habr.career import HABRCareerClient, TokenAuthenticator
+from habr.career.client import HABRCareerClient, TokenAuthenticator
 
 
 class BasicTestCase(unittest.TestCase):
