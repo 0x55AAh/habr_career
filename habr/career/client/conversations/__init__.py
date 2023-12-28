@@ -238,7 +238,7 @@ class HABRCareerConversationsMixin:
         :return:
         """
 
-        response = self.post(
+        self.post(
             "conversation_templates",
             base_url="https://career.habr.com/",
             data={
@@ -247,9 +247,7 @@ class HABRCareerConversationsMixin:
             },
             auth_required=True,
         )
-        if response.ok:
-            return {"success": True}
-        return {"error": "Unknown error"}
+        return {"success": True}
 
     # def delete_template(self, id_: int) -> dict[str, Any]:
     #     """
@@ -273,17 +271,13 @@ class HABRCareerConversationsMixin:
         :param id_:
         :return:
         """
-        response = self.post(
+        self.post(
             f"conversation_templates/template_{id_}",
             base_url="https://career.habr.com/",
             data={"_method": "delete"},
             auth_required=True,
         )
-        if response.ok:
-            return {"success": True}
-        elif response.status_code == codes.NOT_FOUND:
-            return {"error": "Not found"}
-        return {"error": "Unknown error"}
+        return {"success": True}
 
     # def update_template(
     #         self,
@@ -322,17 +316,13 @@ class HABRCareerConversationsMixin:
             f"conversation_template[{k}]": v
             for k, v in data.items()
         }
-        response = self.post(
+        self.post(
             f"conversation_templates/template_{id_}",
             base_url="https://career.habr.com/",
             data={"_method": "patch", **_data},
             auth_required=True,
         )
-        if response.ok:
-            return {"success": True}
-        elif response.status_code == codes.NOT_FOUND:
-            return {"error": "Not found"}
-        return {"error": "Unknown error"}
+        return {"success": True}
 
     def delete_conversation(self, username: str) -> dict[str, Any]:
         """

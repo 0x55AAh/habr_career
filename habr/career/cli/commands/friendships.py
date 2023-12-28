@@ -1,7 +1,7 @@
 import click
 from rich.console import Console
 
-from habr.career.cli.config import SPINNER
+from habr.career.cli.config import SPINNER, EXPERT_MARK
 from habr.career.cli.utils import process_response_error, show_table
 from habr.career.client import HABRCareerClient
 from habr.career.utils import Pagination, ConcurrentJobs
@@ -41,14 +41,18 @@ def get_friends(client: HABRCareerClient, page: int) -> None:
         )
 
     friends_count = profile["user"]["friends"]["total"]
-    # TODO: No friends
+
+    # No friends
+    if not friends_count:
+        console.print("[blue]No friends.[/blue]")
+        return
 
     rows = []
     for friend in friends.list:
         is_expert = friend.is_expert
         full_name = friend.title
         if is_expert:
-            full_name += f" \U0001F393"
+            full_name += f" {EXPERT_MARK}"
         username = friend.id
         subtitle = friend.subtitle
         rows.append([full_name, username, subtitle])
@@ -88,14 +92,18 @@ def get_friendship_requests(client: HABRCareerClient, page: int) -> None:
         )
 
     requests_count = me.user.notification_counters.friends
-    # TODO: No requests
+
+    # No requests
+    if not requests_count:
+        console.print("[blue]No requests.[/blue]")
+        return
 
     rows = []
     for friend in req.list:
         is_expert = friend.is_expert
         full_name = friend.title
         if is_expert:
-            full_name += f" \U0001F393"
+            full_name += f" {EXPERT_MARK}"
         username = friend.id
         subtitle = friend.subtitle
         rows.append([full_name, username, subtitle])

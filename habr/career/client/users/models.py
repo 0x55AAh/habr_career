@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field, HttpUrl
 
-type Username = str
+from habr.career.utils import Username
 
 
 class User(BaseModel):

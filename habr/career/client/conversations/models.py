@@ -4,7 +4,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, HttpUrl
 
-type Username = str
+from habr.career.utils import Username
 
 
 class Conversations(BaseModel):
@@ -72,13 +72,14 @@ class Conversation(BaseModel):
         message: str | None
 
 
+class Template(BaseModel):
+    id: int
+    title: str
+    body: str
+
+
 class Templates(BaseModel):
     templates: list[Template]
-
-    class Template(BaseModel):
-        id: int
-        title: str
-        body: str
 
 
 class Success(BaseModel):

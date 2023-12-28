@@ -1,7 +1,8 @@
+from typing import cast
+
 import click
 from click import Command
 from rich.console import Console
-from typing import cast
 
 from habr.career import __version__
 from habr.career.client import HABRCareerClient, TokenAuthenticator
@@ -18,23 +19,40 @@ from .commands import (
     vacancies,
 )
 from .config import SPINNER
-from .utils import error, info
+from .utils import error, info, process_response_error
 
 
 @click.group()
 @click.option(
     "--token",
     envvar="HABR_CAREER_TOKEN",
-    help="Auth token.",
+    hidden=True,
 )
+@click.option(
+    "--session-id",
+    envvar="HABR_CAREER_SESSION_ID",
+    hidden=True,
+)
+@click.option(
+    "--debug/--no-debug",
+    envvar="HABR_CAREER_DEBUG",
+    default=False,
+    hidden=True,
+)
+@click.version_option(__version__, message="Version: %(version)s")
 @click.pass_context
-def main(ctx, token: str) -> None:
+def main(ctx, token: str, session_id, debug: bool) -> None:
     """Habr Career console application."""
-    ctx.obj = HABRCareerClient(auth=TokenAuthenticator(token=token))
+    ctx.obj = HABRCareerClient(
+        auth=TokenAuthenticator(token=token),
+        session_id=session_id,
+        debug=debug,
+    )
 
 
 @main.command("logout")
 @click.pass_obj
+@process_response_error
 def logout(client: HABRCareerClient) -> None:
     """Perform logout operation to invalidate auth token."""
     console = Console()
@@ -47,18 +65,29 @@ def logout(client: HABRCareerClient) -> None:
         exit(1)
 
 
-@main.command("version")
-def version() -> None:
-    """Show client version and exit."""
-    info(f"Current version: {__version__}")
+@main.command("notifications")
+@click.pass_obj
+@process_response_error
+def notifications(client: HABRCareerClient) -> None:
+    """Show notifications."""
+    console = Console()
+    with console.status("Loading...", spinner=SPINNER):
+        me = client.user
+
+    counters = me.user.notification_counters
+
+    info(", ".join(
+        f"{k.title()}: {v}"
+        for k, v in counters.model_dump().items()
+    ))
 
 
-main.add_command(cast(Command, companies.cli))
+# main.add_command(cast(Command, companies.cli))
 main.add_command(cast(Command, conversations.cli))
-main.add_command(cast(Command, courses.cli))
-main.add_command(cast(Command, experts.cli))
+# main.add_command(cast(Command, courses.cli))
+# main.add_command(cast(Command, experts.cli))
 main.add_command(cast(Command, friendships.cli))
-main.add_command(cast(Command, resumes.cli))
-main.add_command(cast(Command, salaries.cli))
+# main.add_command(cast(Command, resumes.cli))
+# main.add_command(cast(Command, salaries.cli))
 main.add_command(cast(Command, users.cli))
-main.add_command(cast(Command, vacancies.cli))
+# main.add_command(cast(Command, vacancies.cli))

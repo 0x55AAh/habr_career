@@ -45,7 +45,7 @@ with open("my_cv_file.pdf", "wb") as f:
 ## Где взять токен?
 
 Поскольку процесс логина защищен `google recaptcha`, то сначала выполняем вход
-на веб клиенте как обычно. После чего копируем `remember_user_token`, сохраненный в `cookies`.
+на веб клиенте как обычно через форму. После чего копируем `remember_user_token`, сохраненный в `cookies`.
 
 Токены выдаются на 29 дней.
 
@@ -66,13 +66,33 @@ from habr.career.client import logout
 logout("<Your token here>")
 ```
 
+Есть правда еще один токен, который сессионный.
+Сохраняется он также в `cookies` под именем `_career_session`.
+И он также может быть использован для выполнения операций требующих авторизации:
+
+```python
+import os
+from habr.career.client import HABRCareerClient, TokenAuthenticator
+
+token = os.getenv("HABR_CAREER_TOKEN")
+session_id = os.getenv("HABR_CAREER_SESSION_ID")
+
+auth = TokenAuthenticator(token=token)
+client = HABRCareerClient(auth=auth, session_id=session_id)
+
+# Ваш код
+```
+
+В отличие от основного токена, сессионный токен генерируется после каждого запроса.
+При этом остается возможность использовать и сгенерированный ранее. Как долго - пока не ясно.
+
 ## CLI
 
 Также доступен CLI инструмент `career`.
 
 Примеры использования:
 ```shell
-career version
+career --version
 career --help
 career conversations list
 career conversations connect --username test_it

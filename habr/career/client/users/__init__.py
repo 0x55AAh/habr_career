@@ -1,9 +1,7 @@
 from enum import StrEnum, verify, UNIQUE
-from functools import cached_property
 from typing import Any
 
-from habr.career.utils import NotAuthorizedError, ComplainReason
-from .models import User
+from habr.career.utils import ComplainReason
 
 
 @verify(UNIQUE)
@@ -15,66 +13,6 @@ class CVFormat(StrEnum):
 
 # noinspection PyUnresolvedReferences
 class HABRCareerUsersMixin:
-    @property
-    def user(self) -> User:
-        """
-        Get current (logged in) user data.
-        If user is not logged in or using incorrect token we will get an empty
-        dict and method will raise HABRCareerClientError.
-
-        :return: Examples:
-            {
-                "user": {
-                    "avatarUrl": "https://habrastorage.org/getpro/moikrug/uploads/user/100/026/547/2/avatar/8f53ae217b54d13eef1e9cee3d0487a4.jpg",
-                    "jobSearchState": "ready",
-                    "alias": "x55aah",
-                    "fullName": "Владимир Лысенко",
-                    "gaUidToken": "BAhpBADXnjs%3D--cbbac35334343f49901ad07235cdaf57fdf51171",
-                    "canEditCourses": False,
-                    "isExpert": False,
-                    "notificationCounters": {
-                        "messages": 0,
-                        "friends": 0,
-                        "events": 0
-                    },
-                    "salaryRange": {
-                        "from": None,
-                        "to": 5000,
-                        "unit": "usd"
-                    }
-                },
-                "userCompanies": [],
-                "meta": {
-                    "logoutToken": "oEW1OgPK1wgzMeAMV+qVOSCt8MQ1bB726gZo66Chyn6qXAwG0VloPUW9+7YC86BkzCjyTBsB7j+VEEa/O6K+2A=="
-                }
-            }
-        """
-        path = "frontend_v1/users/me"
-        data = self.get(path, auth_required=True)
-        if not data:
-            raise NotAuthorizedError
-        return User(**data)
-
-    @cached_property
-    def username(self) -> str:
-        """
-        Get username (alias) of current (logged in) user.
-
-        :return:
-        """
-        return self.user.user.alias
-
-    @property
-    def logout_token(self) -> str:
-        """
-        Get user token for performing logout operation.
-        Note: this is not the same as authenticity_token but can be used
-              as a csrf_token.
-
-        :return:
-        """
-        return self.user.meta.logout_token
-
     @property
     def subscribe_status(self) -> dict[str, Any]:
         """
@@ -218,3 +156,6 @@ class HABRCareerUsersMixin:
             json={"reason": reason.value},
             auth_required=True,
         )
+
+    # TODO: send opinions
+    #  https://career.habr.com/nikolskaya-maria-05/opinions/new

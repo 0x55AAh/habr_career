@@ -3,8 +3,12 @@ import itertools
 import click
 from rich.align import Align
 
-from habr.career.cli.config import SPINNER
-from habr.career.cli.utils import process_response_error, show_table
+from habr.career.cli.config import SPINNER, EXPERT_MARK
+from habr.career.cli.utils import (
+    process_response_error,
+    show_table,
+    truncate_chars,
+)
 from habr.career.client import HABRCareerClient
 from habr.career.utils import (
     ComplainReason,
@@ -14,27 +18,6 @@ from habr.career.utils import (
 
 from rich.console import Console
 from rich.text import Text
-
-
-def truncate_chars(text: str, length: int) -> str:
-    text = text.replace("\n", " ")
-    text = cleanup_tags(text).strip()
-    if len(text) <= length:
-        return text
-    else:
-        text = text[:length].rstrip(".")
-        return f"{text}..."
-
-
-def multiline_prompt(text: str = "", *args, **kwargs) -> str:
-    lines = []
-    while True:
-        line = click.prompt(text, *args, **kwargs)
-        if line:
-            lines.append(line)
-        else:
-            break
-    return "\n".join(lines)
 
 
 @click.group("conversations")
@@ -69,6 +52,13 @@ def get_conversations(client: HABRCareerClient,
     with console.status("Loading...", spinner=SPINNER):
         conversations = client.get_conversations(search, page)
 
+    total_count = conversations.meta.total_count
+
+    # No conversations
+    if not total_count:
+        console.print("[blue]No conversations[/blue]")
+        return
+
     rows = []
     for username, con in conversations.objects.items():
         last_message = con.conversation.last_message
@@ -85,10 +75,9 @@ def get_conversations(client: HABRCareerClient,
         # Get last message `body` field
         body = getattr(last_message, "body", banned_message)
         if body:
-            prefix = "[blue]Me: [/blue]" if is_mine else ""
-            body = f"{prefix}{body}"
-            c = len(prefix) - 4 if prefix else 0
-            body = truncate_chars(body, length=40 + c)
+            prefix = "Me: " if is_mine else ""
+            body = truncate_chars(f"{prefix}{body}", length=40)
+            body = f"[blue]{prefix}[/blue]" + body[len(prefix):]
 
         # Get last message `created_at` field
         created_at = getattr(last_message, "created_at", None)
@@ -107,7 +96,7 @@ def get_conversations(client: HABRCareerClient,
 
         full_name = f"{style}{con.full_name}"
         if con.is_expert:
-            full_name += f" \U0001F393"
+            full_name += f" {EXPERT_MARK}"
 
         username = f"{style}{username}"
         created_at = f"{style}{created_at}"
@@ -115,12 +104,9 @@ def get_conversations(client: HABRCareerClient,
 
         rows.append([full_name, username, created_at, body])
 
-    total_count = conversations.meta.total_count
     title = "Conversations"
     if total_count:
         title = f"{title} ({total_count})"
-
-    # TODO: No conversations
 
     show_table(
         console=console,
@@ -164,12 +150,20 @@ def connect(client: HABRCareerClient, username: str, page: int) -> None:
             .run()
         )
 
+    messages = conversation.messages.data
+    meta = conversation.messages.meta
+
+    # No messages
+    if not meta.total:
+        console.print(
+            "[blue]No messages. Write your first message.[/blue]")
+        return
+
     theme = conversation.theme
     is_banned = conversation.banned.status
     banned_message = conversation.banned.message
     has_new_message = conversation.has_new_message
     other_name = other["user"]["title"]
-    messages = conversation.messages.data
 
     message_width = 60
     table_width = 80
@@ -179,35 +173,32 @@ def connect(client: HABRCareerClient, username: str, page: int) -> None:
         captions.append(f"[red]{banned_message}[/red]")
 
     rows = []
-    if not messages:
-        rows.append(["No messages. Write your first message."])  # TODO
-    else:
-        captions.append(", ".join([
-            f"{k.title().replace("_", " ")}: {v}"
-            for k, v in conversation.messages.meta.model_dump().items()
-        ]))
+    captions.append(", ".join([
+        f"{k.title().replace("_", " ")}: {v}"
+        for k, v in meta.model_dump().items()
+    ]))
 
-        for date, messages_ in itertools.groupby(
-                messages, key=lambda m: m.created_at.date()):
-            date = date.strftime("%d %B %Y")
-            rows.append(
-                [Text(date, justify="center", style="blue", end="\n\n")])
-            for message in messages_:
-                body = cleanup_tags(message.body, strip=True, separator="\n")
-                if message.is_mine:
-                    author = me.user.full_name
-                    # author = "Me"
-                else:
-                    author = other_name
-                time = message.created_at.strftime("%H:%M")
-                author = (f"[blue bold]{author}[/blue bold]"
-                          f" [bright_black]{time}[/bright_black]")
-                body = Align(
-                    f"{author}\n{body}\n",
-                    align="right" if message.is_mine else "left",
-                    width=message_width,
-                )
-                rows.append([body])
+    for date, messages_ in itertools.groupby(
+            messages, key=lambda m: m.created_at.date()):
+        date = date.strftime("%d %B %Y")
+        rows.append(
+            [Text(date, justify="center", style="blue", end="\n\n")])
+        for message in messages_:
+            body = cleanup_tags(message.body, strip=True, separator="\n")
+            if message.is_mine:
+                author = me.user.full_name
+                # author = "Me"
+            else:
+                author = other_name
+            time = message.created_at.strftime("%H:%M")
+            author = (f"[blue bold]{author}[/blue bold]"
+                      f" [bright_black]{time}[/bright_black]")
+            body = Align(
+                f"{author}\n{body}\n",
+                align="right" if message.is_mine else "left",
+                width=message_width,
+            )
+            rows.append([body])
 
     titles = [other_name, data["interlocutor"]["subtitle"]]
 
@@ -256,15 +247,24 @@ def send_message(client: HABRCareerClient,
                  message: str | None,
                  template_id: int | None) -> None:
     """Send message to specified user."""
+    from habr.career.client.conversations.models import Template
+
+    def get_template(id_: int) -> Template:
+        res = client.get_templates()
+        templates_list = {t.id: t for t in res.templates}
+        try:
+            return templates_list[id_]
+        except KeyError:
+            console.print("[red]No template found.[/red]")
+            exit(1)
+
     console = Console()
+
     with console.status("Sending...", spinner=SPINNER):
         if message is None and template_id is not None:
-            result = client.get_templates()
-            templates = {t.id: t for t in result.templates}
-            template = templates[template_id]  # TODO
-            message = template.body
+            message = get_template(template_id).body
         if message is None:
-            message = multiline_prompt()
+            message = click.prompt("Your message")
         client.send_message(username, message)
 
 
@@ -279,9 +279,13 @@ def send_message(client: HABRCareerClient,
 def unread_conversation(client: HABRCareerClient, username: str) -> None:
     """Mark conversation with a specified user as unread."""
     console = Console()
-    with console.status("Un-reading...", spinner=SPINNER):
-        # TODO: if the last message is mine, disallow operation
-        #       result = client.get_messages(username, page)
+    with console.status("Making unread...", spinner=SPINNER):
+        result = client.get_messages(username, page=1)
+        last_message_is_mine = result.data[-1].is_mine
+        if last_message_is_mine:
+            console.print("[red]Operation is not allowed:[/red]")
+            console.print("[red]\\_ The last message is mine.[/red]")
+            exit(1)
         client.unread_conversation(username)
 
 

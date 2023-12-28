@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, HttpUrl
 
-type Username = str
+from habr.career.utils import Username
 
 
 class FriendshipBase(BaseModel):

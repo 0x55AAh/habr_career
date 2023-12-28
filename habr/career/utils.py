@@ -3,12 +3,13 @@ from __future__ import annotations
 import json
 from collections import UserDict
 from enum import Enum, verify, UNIQUE, StrEnum, IntEnum
-from typing import Any, Self, Iterator
+from typing import Any, Self, Iterator, Literal
 
 from bs4 import BeautifulSoup
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, Field
 
 type PydanticModel = BaseModel
+type Username = str
 
 registered_errors: list[type[ResponseError]] = []
 
@@ -31,20 +32,25 @@ class LogoutError(HABRCareerClientError):
 
 
 class BaseResponseError(HABRCareerClientError):
-    schema: type[PydanticModel] = None
+    schema: type[PydanticModel] | None = None
+    reason_field: str | None = None
 
     def __init__(self, **kwargs):
-        super().__init__(self.get_reason())
         self.data = kwargs
+        super().__init__(self.get_reason())
 
     def get_reason(self) -> str:
-        raise NotImplementedError
+        if self.reason_field is None:
+            raise NotImplementedError("Reason field is not configured")
+        return self.data[self.reason_field]
 
     @classmethod
     def check_data(cls, data: dict) -> None:
+        if cls.schema is None:
+            raise NotImplementedError("Schema class is not configured")
         try:
             cls.schema(**data)
-        except ValidationError:
+        except (ValidationError, TypeError):
             return
         raise cls(**data)
 
@@ -58,6 +64,7 @@ class ResponseError(BaseResponseError):
         {"error": "Not found"}
         {"status": "422", "error": "Unprocessable Entity"}
     """
+    reason_field: str = "error"
 
     class Schema(BaseModel):
         status: int | None = None
@@ -65,8 +72,59 @@ class ResponseError(BaseResponseError):
 
     schema = Schema
 
+
+ResponseErrorType0 = ResponseError
+
+
+@register_error
+class ResponseErrorType1(BaseResponseError):
+    """
+    Examples:
+        {
+            "httpCode": 404,
+            "errorCode": "NOT_FOUND",
+            "message": "Not found",
+            "data": {}
+        }
+    """
+    reason_field: str = "message"
+
+    class Schema(BaseModel):
+        http_code: int = Field(alias="httpCode")
+        error_code: str = Field(alias="errorCode")
+        message: str
+        data: dict
+
+    schema = Schema
+
+
+@register_error
+class ResponseErrorType2(BaseResponseError):
+    """
+    Examples:
+        {
+            "status": "error",
+            "errors": [
+                {
+                    "message": "Профиль пользователя заблокирован, вы не можете отправлять ему сообщения.",
+                    "type": "error"
+                }
+            ]
+        }
+    """
+
+    class Schema(BaseModel):
+        status: Literal["error"]
+        errors: list[Error]
+
+        class Error(BaseModel):
+            message: str
+            type: Literal["error"]
+
+    schema = Schema
+
     def get_reason(self):
-        return self.data["error"]
+        return "\n".join(e["message"] for e in self.data["errors"])
 
 
 class ConcurrentJobs:
@@ -111,15 +169,18 @@ def get_ssr_json(html_code: str) -> dict:
     return json.loads(el.get_text())
 
 
-def cleanup_tags(html_code: str, **kwargs) -> str:
+def cleanup_tags(html_code: str, br_replace=True, **kwargs) -> str:
     """
     Remove HTML tags from input string.
 
     :param html_code:
+    :param br_replace:
     :return:
     """
+    if br_replace:
+        html_code = html_code.replace("<br>", "\n")
     soup = BeautifulSoup(html_code, features="html.parser")
-    return soup.get_text(**kwargs)
+    return soup.get_text(**kwargs).strip()
 
 
 def bool_to_str(value: bool | None) -> str | None:
@@ -216,6 +277,19 @@ class Currency(StrEnum):
     USD = "usd"
     UAH = "uah"
     KZT = "kzt"
+
+
+@verify(UNIQUE)
+class CurrencySymbol(StrEnum):
+    RUR = "₽"
+    EUR = "€"
+    USD = "$"
+    UAH = "₴"
+    KZT = "₸"
+
+    @staticmethod
+    def by_name(name: str) -> CurrencySymbol:
+        return CurrencySymbol.__members__[name.upper()]
 
 
 class Pagination:

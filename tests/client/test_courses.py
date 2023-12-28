@@ -1,3 +1,4 @@
+from habr.career.utils import ResponseErrorType1
 from tests.utils import BasicTestCase
 
 
@@ -9,25 +10,28 @@ class CoursesTestCase(BasicTestCase):
         self.assertIn("meta", result)
 
     def test_get_course(self):
-        result = self.client.get_course("test")
-        self.assertIn("httpCode", result)
-        self.assertIn("errorCode", result)
-        self.assertIn("message", result)
-        self.assertIn("data", result)
+        with self.assertRaises(ResponseErrorType1):
+            result = self.client.get_course("test")
+        # self.assertIn("httpCode", result)
+        # self.assertIn("errorCode", result)
+        # self.assertIn("message", result)
+        # self.assertIn("data", result)
 
     def test_get_course_scores(self):
-        result = self.client.get_course_scores("test")
-        self.assertIn("httpCode", result)
-        self.assertIn("errorCode", result)
-        self.assertIn("message", result)
-        self.assertIn("data", result)
+        with self.assertRaises(ResponseErrorType1):
+            result = self.client.get_course_scores("test")
+        # self.assertIn("httpCode", result)
+        # self.assertIn("errorCode", result)
+        # self.assertIn("message", result)
+        # self.assertIn("data", result)
 
     def test_get_similar_courses(self):
-        result = self.client.get_similar_courses("test")
-        self.assertIn("httpCode", result)
-        self.assertIn("errorCode", result)
-        self.assertIn("message", result)
-        self.assertIn("data", result)
+        with self.assertRaises(ResponseErrorType1):
+            result = self.client.get_similar_courses("test")
+        # self.assertIn("httpCode", result)
+        # self.assertIn("errorCode", result)
+        # self.assertIn("message", result)
+        # self.assertIn("data", result)
 
     def test_get_popular_education_platforms(self):
         result = self.client.get_popular_education_platforms()

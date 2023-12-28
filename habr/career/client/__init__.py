@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from functools import partialmethod
+from functools import partialmethod, cached_property
 from typing import Any
 from urllib.parse import urlparse, parse_qsl
 
@@ -19,6 +19,7 @@ from habr.career.client.resumes import HABRCareerResumesMixin
 from habr.career.client.salaries import HABRCareerSalariesMixin
 from habr.career.client.tools import HABRCareerToolsMixin
 from habr.career.client.users import HABRCareerUsersMixin
+from habr.career.client.users.models import User
 from habr.career.client.vacancies import HABRCareerVacanciesMixin
 from habr.career.utils import (
     get_ssr_json,
@@ -30,14 +31,6 @@ from habr.career.utils import (
     registered_errors,
     HABRCareerClientError,
 )
-
-# TODO
-# import logging
-# log = logging.getLogger("urllib3")
-#
-# log.setLevel(logging.DEBUG)
-# from http.client import HTTPConnection
-# HTTPConnection.debuglevel = 1
 
 __all__ = [
     "Authenticator",
@@ -118,27 +111,31 @@ class TokenAuthenticator(Authenticator):
             "users/sign_out",
             base_url="https://career.habr.com/",
             data={"_method": "delete"},
-            headers={"X-Csrf-Token": self.client.logout_token},
+            # headers={"X-Csrf-Token": self.client.logout_token},
             auth_required=True,
         )
 
+        # TODO:
+        #   Response doesn't contain updated _career_session,
+        #   which is why it appears the method working as expected.
+        #   Logout operation doesn't impact _career_session token though.
+
         params = dict(parse_qsl(urlparse(response.url).query))
 
-        if not all([response.ok, "token" in params]):
-            raise LogoutError
+        if "token" not in params:
+            raise LogoutError("Logout token is not set.")
 
         # TODO:
         #   In web client we have a number of other sign out operations
-        #   here performed by token got from previous request.
-        #   Skipping for now. Feel free to add if you want to.
+        #   here performed by token from previous request. Skipping for now.
 
         # Ensure the token is no longer valid
         try:
-            self.client.user
+            me = self.client.user
         except NotAuthorizedError:
             self.token = None
         else:
-            raise LogoutError
+            raise LogoutError("Still logged in.")
 
 
 class HABRCareerBaseClient:
@@ -146,11 +143,20 @@ class HABRCareerBaseClient:
     GENERAL_BASE_URL = "https://career.habr.com/"
     CSRF_PROTECTED_HTTP_METHODS = ("POST", "PUT", "PATCH", "DELETE")
 
-    def __init__(self, auth: Authenticator):
+    def __init__(
+            self,
+            auth: Authenticator,
+            session_id: str | None = None,
+            debug: bool = False,
+    ):
         self.auth = auth
         if not auth.is_authenticated():
             self.auth.login()
-        self._sess: str | None = None
+        self._sess = session_id
+
+        if debug:
+            from http.client import HTTPConnection
+            HTTPConnection.debuglevel = 1
 
     @property
     def auth(self) -> Authenticator:
@@ -215,8 +221,10 @@ class HABRCareerBaseClient:
 
         if auth_required:
             if method in self.CSRF_PROTECTED_HTTP_METHODS:
+                # self.set_header(request,
+                #                 "X-Csrf-Token", lambda: self.csrf_token)
                 self.set_header(request,
-                                "X-Csrf-Token", lambda: self.csrf_token)
+                                "X-Csrf-Token", lambda: self.logout_token)
             self.set_cookie(request, "remember_user_token", self.auth.token)
             self.set_cookie(request, "_career_session", self._sess)
 
@@ -225,13 +233,14 @@ class HABRCareerBaseClient:
         self._sess = response.cookies.get("_career_session")
 
         if not response.ok:
-            raise ResponseError(
-                status=response.status_code,
-                error=response.reason
-            )
-
-        # JSON data or Response
-        if ssr:
+            try:
+                data = response.json()
+            except JSONDecodeError:
+                raise ResponseError(
+                    status=response.status_code,
+                    error=response.reason
+                )
+        elif ssr:
             data = get_ssr_json(response.text)
         else:
             try:
@@ -241,8 +250,8 @@ class HABRCareerBaseClient:
 
         # Make sure response data is not error
         # Validate data against registered errors
-        for cls in registered_errors:
-            cls.check_data(data)
+        for error_cls in registered_errors:
+            error_cls.check_data(data)
 
         # JSON data processing
         if cls is not None:
@@ -250,7 +259,7 @@ class HABRCareerBaseClient:
                 obj = cls(**data)
                 return getattr(obj, key) if key else obj
             except ValidationError:
-                raise HABRCareerClientError
+                raise HABRCareerClientError("Unknown error")
 
         return data[key] if key else data
 
@@ -312,6 +321,68 @@ class HABRCareerBaseClient:
         return self.get(path, key="token")
 
     csrf_token = authenticity_token
+
+    @property
+    def user(self) -> User:
+        """
+        Get current (logged in) user data.
+        If user is not logged in or using incorrect token we will get an empty
+        dict and method will raise HABRCareerClientError.
+
+        :return: Examples:
+            {
+                "user": {
+                    "avatarUrl": "https://habrastorage.org/getpro/moikrug/uploads/user/100/026/547/2/avatar/8f53ae217b54d13eef1e9cee3d0487a4.jpg",
+                    "jobSearchState": "ready",
+                    "alias": "x55aah",
+                    "fullName": "Владимир Лысенко",
+                    "gaUidToken": "BAhpBADXnjs%3D--cbbac35334343f49901ad07235cdaf57fdf51171",
+                    "canEditCourses": False,
+                    "isExpert": False,
+                    "notificationCounters": {
+                        "messages": 0,
+                        "friends": 0,
+                        "events": 0
+                    },
+                    "salaryRange": {
+                        "from": None,
+                        "to": 5000,
+                        "unit": "usd"
+                    }
+                },
+                "userCompanies": [],
+                "meta": {
+                    "logoutToken": "oEW1OgPK1wgzMeAMV+qVOSCt8MQ1bB726gZo66Chyn6qXAwG0VloPUW9+7YC86BkzCjyTBsB7j+VEEa/O6K+2A=="
+                }
+            }
+        """
+        path = "frontend_v1/users/me"
+        data = self.get(path, auth_required=True)
+        if not data:
+            raise NotAuthorizedError
+        return User(**data)
+
+    me = user
+
+    @cached_property
+    def username(self) -> str:
+        """
+        Get username (alias) of current (logged in) user.
+
+        :return:
+        """
+        return self.user.user.alias
+
+    @property
+    def logout_token(self) -> str:
+        """
+        Get user token for performing logout operation.
+        Note: this is not the same as authenticity_token but can be used
+              as a csrf_token.
+
+        :return:
+        """
+        return self.user.meta.logout_token
 
     def logout(self) -> None:
         """Invalidates auth token."""
