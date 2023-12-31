@@ -44,8 +44,11 @@ def templates() -> None:
 )
 @click.pass_obj
 @process_response_error
-def get_conversations(client: HABRCareerClient,
-                      search: str, page: int) -> None:
+def get_conversations(
+        client: HABRCareerClient,
+        search: str,
+        page: int,
+) -> None:
     """Get conversations list."""
     console = Console()
 
@@ -242,10 +245,12 @@ def disconnect(client: HABRCareerClient, username: str) -> None:
 )
 @click.pass_obj
 @process_response_error
-def send_message(client: HABRCareerClient,
-                 username: str,
-                 message: str | None,
-                 template_id: int | None) -> None:
+def send_message(
+        client: HABRCareerClient,
+        username: str,
+        message: str | None,
+        template_id: int | None,
+) -> None:
     """Send message to specified user."""
     from habr.career.client.conversations.models import Template
 
@@ -302,8 +307,11 @@ def unread_conversation(client: HABRCareerClient, username: str) -> None:
 )
 @click.pass_obj
 @process_response_error
-def change_conversation_subject(client: HABRCareerClient,
-                                username: str, subject: str) -> None:
+def change_conversation_subject(
+        client: HABRCareerClient,
+        username: str,
+        subject: str,
+) -> None:
     """Change a specified user conversation topic."""
     console = Console()
     with console.status("Changing...", spinner=SPINNER):
@@ -324,8 +332,11 @@ def change_conversation_subject(client: HABRCareerClient,
 )
 @click.pass_obj
 @process_response_error
-def complain_conversation(client: HABRCareerClient,
-                          username: str, reason: ComplainReason) -> None:
+def complain_conversation(
+        client: HABRCareerClient,
+        username: str,
+        reason: ComplainReason,
+) -> None:
     """Complain to a specified user."""
     console = Console()
     with console.status("Complaining...", spinner=SPINNER):
@@ -409,8 +420,12 @@ def delete_template(client: HABRCareerClient, id_: int) -> None:
 )
 @click.pass_obj
 @process_response_error
-def update_template(client: HABRCareerClient,
-                    id_: int, title: str, body: str) -> None:
+def update_template(
+        client: HABRCareerClient,
+        id_: int,
+        title: str,
+        body: str,
+) -> None:
     """Update template with specified attributes."""
     console = Console()
     with console.status("Updating...", spinner=SPINNER):

@@ -123,6 +123,7 @@ class TokenAuthenticator(Authenticator):
         params = dict(parse_qsl(urlparse(response.url).query))
 
         if "token" not in params:
+            # Seems to be something went wrong when logging out
             raise LogoutError("Logout token is not set.")
 
         # TODO:

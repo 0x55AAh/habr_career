@@ -1,12 +1,18 @@
 from datetime import datetime
 from enum import verify, UNIQUE, IntEnum, StrEnum
-from typing import Any
 
-from habr.career.utils import Pagination, QueryParams
+from habr.career.utils import Pagination
+from .models import Ratings
 
 
 @verify(UNIQUE)
 class CompanySize(IntEnum):
+    """
+    HUGE:   Over 5000
+    BIG:    1000 - 5000
+    MEDIUM: 100 - 1000
+    SMALL:  10 - 100
+    """
     HUGE = 5    # > 5000
     BIG = 4     # 1000 - 5000
     MEDIUM = 3  # 100 - 1000
@@ -15,9 +21,23 @@ class CompanySize(IntEnum):
 
 @verify(UNIQUE)
 class CompanyRatingCriteria(StrEnum):
+    """
+    AV: Общая оценка
+    S2: Интересные задачи
+    S3: Адекватная зарплата
+    S4: Социальный пакет
+    S5: Комфортные условия труда
+    S6: Профессиональный рост
+    S7: Карьерный рост
+    S8: Отношения с коллегами
+    S9: Признание результатов труда
+    S10: Грамотность менеджмента
+    S11: Связь с топ-менеджментом
+    S12: Компания делает мир лучше
+    S16: Современные технологии
+    """
     AV = "av"     # Общая оценка
     S2 = "s_2"    # Интересные задачи
-    S16 = "s_16"  # Современные технологии
     S3 = "s_3"    # Адекватная зарплата
     S4 = "s_4"    # Социальный пакет
     S5 = "s_5"    # Комфортные условия труда
@@ -28,6 +48,7 @@ class CompanyRatingCriteria(StrEnum):
     S10 = "s_10"  # Грамотность менеджмента
     S11 = "s_11"  # Связь с топ-менеджментом
     S12 = "s_12"  # Компания делает мир лучше
+    S16 = "s_16"  # Современные технологии
 
 
 # noinspection PyUnresolvedReferences
@@ -44,12 +65,12 @@ class HABRCareerCompaniesRatingsMixin:
 
     def get_companies_ratings(
             self,
-            year: int | None = None,
-            size: CompanySize = CompanySize.HUGE,
-            sort: CompanyRatingCriteria = CompanyRatingCriteria.AV,
+            year: int | None = datetime.now().year - 1,
+            size: CompanySize | None = CompanySize.HUGE,
+            sort: CompanyRatingCriteria | None = CompanyRatingCriteria.AV,
             search: str | None = None,
-            page: int = Pagination.INIT_PAGE,
-    ) -> dict[str, Any]:
+            page: int | None = Pagination.INIT_PAGE,
+    ) -> Ratings:
         """
         Get companies ratings.
 
@@ -79,68 +100,14 @@ class HABRCareerCompaniesRatingsMixin:
                                     "value": "4.78",
                                     "level": "average"
                                 },
-                                {
-                                    "title": "Современные технологии",
-                                    "value": "4.86",
-                                    "level": "good"
-                                },
-                                {
-                                    "title": "Адекватная зарплата",
-                                    "value": "4.83",
-                                    "level": "average"
-                                },
-                                {
-                                    "title": "Социальный пакет",
-                                    "value": "4.73",
-                                    "level": "average"
-                                },
-                                {
-                                    "title": "Комфортные условия труда",
-                                    "value": "4.85",
-                                    "level": "average"
-                                },
-                                {
-                                    "title": "Профессиональный рост",
-                                    "value": "4.86",
-                                    "level": "good"
-                                },
-                                {
-                                    "title": "Карьерный рост",
-                                    "value": "4.84",
-                                    "level": "average"
-                                },
-                                {
-                                    "title": "Отношения с коллегами",
-                                    "value": "4.86",
-                                    "level": "good"
-                                },
-                                {
-                                    "title": "Признание результатов труда",
-                                    "value": "4.76",
-                                    "level": "average"
-                                },
-                                {
-                                    "title": "Грамотность менеджмента",
-                                    "value": "4.77",
-                                    "level": "average"
-                                },
-                                {
-                                    "title": "Связь с топ-менеджментом",
-                                    "value": "4.78",
-                                    "level": "average"
-                                },
-                                {
-                                    "title": "Компания делает мир лучше",
-                                    "value": "4.79",
-                                    "level": "average"
-                                }
+                                ...
                             ]
                         },
                         "review": {
                             "shouldCollapse": True,
-                            "summary": "\u003cp\u003eВ целом все устраивает, зп конкурентная. Когда захотел по личным причинам уехать в Грузию - предоставили возможность работать удаленно.\u003cbr\u003e\u003c/p\u003e",
-                            "positives": "\u003cp\u003eГибкая удаленка\u003c/p\u003e\n\u003cp\u003eХорошие процессы\u003c/p\u003e\n\u003cp\u003eКрутые ребята\u003c/p\u003e",
-                            "negatives": "\u003cp\u003eДМС оформляется только после испытательного\u003c/p\u003e\n\u003cp\u003eНе хватает тимбилдинга для удаленщиков\u003c/p\u003e"
+                            "summary": "<p>В целом все устраивает, зп конкурентная. Когда захотел по личным причинам уехать в Грузию - предоставили возможность работать удаленно.<br></p>",
+                            "positives": "<p>Гибкая удаленка</p>\n<p>Хорошие процессы</p>\n<p>Крутые ребята</p>",
+                            "negatives": "<p>ДМС оформляется только после испытательного</p>\n<p>Не хватает тимбилдинга для удаленщиков</p>"
                         },
                         "position": 1,
                         "company": {
@@ -173,7 +140,8 @@ class HABRCareerCompaniesRatingsMixin:
                             ],
                             "accredited": True
                         }
-                    }
+                    },
+                    ...
                 ],
                 "meta": {
                     "perPage": 25,
@@ -184,14 +152,17 @@ class HABRCareerCompaniesRatingsMixin:
                 }
             }
         """
-        params = QueryParams({
-            "sort": sort,
-            "y": year or datetime.now().year - 1,
-            "sz": size,
-            "page": page,
-            "q": search,
-        })
-        return self.get(f"frontend/companies/ratings?{params.query()}")
+        return self.get(
+            "frontend/companies/ratings",
+            params={
+                "sort": sort,
+                "y": year,
+                "sz": size,
+                "page": page,
+                "q": search,
+            },
+            cls=Ratings,
+        )
 
     def rate_company(self):
         # TODO:

@@ -48,7 +48,7 @@ def get_friends(client: HABRCareerClient, page: int) -> None:
         return
 
     rows = []
-    for friend in friends.list:
+    for friend in friends.list_:
         is_expert = friend.is_expert
         full_name = friend.title
         if is_expert:
@@ -99,7 +99,7 @@ def get_friendship_requests(client: HABRCareerClient, page: int) -> None:
         return
 
     rows = []
-    for friend in req.list:
+    for friend in req.list_:
         is_expert = friend.is_expert
         full_name = friend.title
         if is_expert:

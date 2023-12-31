@@ -321,7 +321,8 @@ def get_profile(
     help="",
 )
 @click.option(
-    "-p", "--path",
+    "-o", "--output",
+    type=click.Path(writable=True, resolve_path=True, dir_okay=False),
     required=True,
     help="",
 )
@@ -331,23 +332,24 @@ def get_cv(
         client: HABRCareerClient,
         username: str | None,
         fmt: CVFormat,
-        path: str,
+        output: str,
 ) -> None:
     """Get CV for the requested user."""
     console = Console()
 
-    with console.status("Loading...", spinner=SPINNER):
+    with console.status("Downloading...", spinner=SPINNER):
         username = username or client.username
         data = client.get_cv(username, fmt)
 
-    path = os.path.abspath(path)
-    try:
-        os.makedirs(os.path.dirname(path))
-    except FileExistsError:
-        pass
+    # try:
+    #     os.makedirs(os.path.dirname(path))
+    # except FileExistsError:
+    #     pass
 
-    with open(path, "wb") as f:
+    with click.open_file(output, "wb") as f:
         f.write(data)
+
+    click.echo(f"File saved to {click.format_filename(output)}")
 
 
 @cli.command("complain")

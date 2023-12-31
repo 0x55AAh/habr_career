@@ -82,7 +82,7 @@ def notifications(client: HABRCareerClient) -> None:
     ))
 
 
-# main.add_command(cast(Command, companies.cli))
+main.add_command(cast(Command, companies.cli))
 main.add_command(cast(Command, conversations.cli))
 # main.add_command(cast(Command, courses.cli))
 # main.add_command(cast(Command, experts.cli))

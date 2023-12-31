@@ -8,7 +8,7 @@ from habr.career.utils import Username
 
 
 class FriendshipBase(BaseModel):
-    list: list[Friends]
+    list_: list[Friends] = Field(alias="list")
     meta: Meta
 
     class Friends(BaseModel):

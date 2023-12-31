@@ -1,6 +1,6 @@
 ![](logos/logo.svg)
 
-## Python клиент (https://career.habr.com/)
+---
 
 Функционал включает следующие разделы веб клиента:
 - [x] вакансии (https://career.habr.com/vacancies)
@@ -92,6 +92,10 @@ client = HABRCareerClient(auth=auth, session_id=session_id)
 
 Примеры использования:
 ```shell
+export HABR_CAREER_TOKEN="Your token here"
+# export HABR_CAREER_SESSION_ID="Your session ID here"
+# export HABR_CAREER_DEBUG=1
+
 career --version
 career --help
 career conversations list
@@ -110,7 +114,7 @@ career logout
 - [ ] специалисты (https://career.habr.com/resumes)
 - [ ] эксперты (https://career.habr.com/experts)
 - [ ] компании (https://career.habr.com/companies)
-- [ ] рейтинг (https://career.habr.com/companies/ratings)
+- [x] рейтинг (https://career.habr.com/companies/ratings)
 - [ ] зарплаты (https://career.habr.com/salaries)
 - [ ] образование (https://career.habr.com/courses)
 - [ ] журнал (https://career.habr.com/journal)
