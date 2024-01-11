@@ -13,7 +13,8 @@ from habr.career.client import HABRCareerClient
 from habr.career.utils import (
     ComplainReason,
     cleanup_tags,
-    ConcurrentJobs, Pagination,
+    ConcurrentJobs,
+    Pagination,
 )
 
 from rich.console import Console

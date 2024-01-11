@@ -14,6 +14,13 @@ from habr.career.utils import (
 )
 
 
+def output_as_json(indent: int = 4, **kwargs) -> str:
+    from pydantic import create_model
+    field_definitions = {k: (v.__class__, v) for k, v in kwargs.items()}
+    model = create_model("Model", **field_definitions)
+    return model().model_dump_json(indent=indent)
+
+
 class Choice(click.Choice):
     def get_metavar(self, param) -> str:
         choices_str = "|".join(map(str, self.choices))
@@ -38,12 +45,12 @@ def truncate_chars(text: str, length: int) -> str:
         return f"{text}..."
 
 
-def str_display_width(text: str) -> int:
+def str_display_width(char: str) -> int:
     def get_char_display_width(unicode_char):
         match unicodedata.east_asian_width(unicode_char):
             case "W": return 2
             case _: return 1
-    return sum(map(get_char_display_width, text))
+    return sum(map(get_char_display_width, char))
 
 
 def build_table(

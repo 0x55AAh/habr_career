@@ -65,29 +65,12 @@ def logout(client: HABRCareerClient) -> None:
         exit(1)
 
 
-@main.command("notifications")
-@click.pass_obj
-@process_response_error
-def notifications(client: HABRCareerClient) -> None:
-    """Show notifications."""
-    console = Console()
-    with console.status("Loading...", spinner=SPINNER):
-        me = client.user
-
-    counters = me.user.notification_counters
-
-    info(", ".join(
-        f"{k.title()}: {v}"
-        for k, v in counters.model_dump().items()
-    ))
-
-
 main.add_command(cast(Command, companies.cli))
 main.add_command(cast(Command, conversations.cli))
 # main.add_command(cast(Command, courses.cli))
 # main.add_command(cast(Command, experts.cli))
 main.add_command(cast(Command, friendships.cli))
 # main.add_command(cast(Command, resumes.cli))
-# main.add_command(cast(Command, salaries.cli))
+main.add_command(cast(Command, salaries.cli))
 main.add_command(cast(Command, users.cli))
 # main.add_command(cast(Command, vacancies.cli))

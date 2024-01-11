@@ -1,7 +1,7 @@
 from enum import verify, UNIQUE, StrEnum
 from typing import Any
 
-from habr.career.utils import Currency, QueryParams
+from habr.career.utils import Currency
 
 
 @verify(UNIQUE)
@@ -231,7 +231,7 @@ class HABRCareerResumesMixin:
                 }
             }
         """
-        params = QueryParams({
+        params = {
             "q": search,
             "fields[]": search_fields,
             "s[]": specializations,
@@ -258,9 +258,14 @@ class HABRCareerResumesMixin:
             "with_experiences": with_experiences,
             "with_salary": with_salary,
             "with_social_ratings": with_social_ratings,
-        })
-        query = params.query(doseq=True, bool_as_str=True)
-        return self.get(f"frontend/resumes?{query}")
+        }
+        return self.get(
+            "frontend/resumes",
+            params=params,
+            params_options={
+                "bool_as_str": True,
+            },
+        )
 
     def get_resumes_data(
             self,
@@ -534,7 +539,7 @@ class HABRCareerResumesMixin:
                 "vacancyBanners": []
             }
         """
-        params = QueryParams({
+        params = {
             "q": search,
             "fields[]": search_fields,
             "s[]": specializations,
@@ -561,9 +566,16 @@ class HABRCareerResumesMixin:
             "with_experiences": with_experiences,
             "with_salary": with_salary,
             "with_social_ratings": with_social_ratings,
-        })
-        query = params.query(doseq=True, bool_as_str=True)
-        return self.get(f"resumes?{query}", auth_required=True, ssr=True)
+        }
+        return self.get(
+            "resumes",
+            auth_required=True,
+            ssr=True,
+            params=params,
+            params_options={
+                "bool_as_str": True,
+            },
+        )
 
     def save_careers_filter(
             self,
@@ -708,7 +720,7 @@ class HABRCareerResumesMixin:
                 ]
             }
         """
-        params = QueryParams({
+        params = {
             "q": search,
             "fields[]": search_fields,
             "s[]": specializations,
@@ -735,13 +747,18 @@ class HABRCareerResumesMixin:
             "with_experiences": with_experiences,
             "with_salary": with_salary,
             "with_social_ratings": with_social_ratings,
-        })
-        query = params.query(doseq=True, bool_as_str=True)
-        path = f"frontend/user_filters/resumes?{query}"
-        return self.post(path, auth_required=True)
+        }
+        return self.post(
+            "frontend/user_filters/resumes",
+            auth_required=True,
+            params=params,
+            params_options={
+                "bool_as_str": True,
+            },
+        )
 
     @staticmethod
-    def _career_filter_data_to_params(filter_data: dict) -> QueryParams:
+    def _career_filter_data_to_params(filter_data: dict) -> dict:
         """
         Converts filter data into query params.
 
@@ -818,7 +835,7 @@ class HABRCareerResumesMixin:
         :return:
         """
         filters = filter_data["filters"]
-        return QueryParams({
+        return {
             "q": filter_data.get("query"),
             "order": filter_data.get("order"),
 
@@ -850,9 +867,9 @@ class HABRCareerResumesMixin:
             "with_experiences": filters.get("hasExperience"),
             "with_salary": filters.get("hasSalary"),
             "with_social_ratings": filters.get("hasSocialRatings"),
-        })
+        }
 
-    def _career_filter_to_params(self, id_: int) -> QueryParams:
+    def _career_filter_to_params(self, id_: int) -> dict:
         """
         Converts filter into query params.
 
@@ -874,8 +891,13 @@ class HABRCareerResumesMixin:
         :return:
         """
         params = self._career_filter_to_params(id_)
-        query = params.query(doseq=True, bool_as_str=True)
-        return self.get(f"frontend/resumes?{query}")
+        return self.get(
+            "frontend/resumes",
+            params=params,
+            params_options={
+                "bool_as_str": True,
+            },
+        )
 
     def apply_career_filter_data(self, filter_data: dict) -> dict[str, Any]:
         """
@@ -885,8 +907,13 @@ class HABRCareerResumesMixin:
         :return:
         """
         params = self._career_filter_data_to_params(filter_data)
-        query = params.query(doseq=True, bool_as_str=True)
-        return self.get(f"frontend/resumes?{query}")
+        return self.get(
+            "frontend/resumes",
+            params=params,
+            params_options={
+                "bool_as_str": True,
+            },
+        )
 
     def delete_careers_filter(self, id_: int) -> dict[str, str | int]:
         """
@@ -920,8 +947,8 @@ class HABRCareerResumesMixin:
                 ]
             }
         """
-        path = f"frontend/suggestions/universities?term={search}"
-        return self.get(path, key="list")
+        path = "frontend/suggestions/universities"
+        return self.get(path, key="list", params={"term": search})
 
     def get_education_centers_suggestions(
             self,
@@ -943,5 +970,5 @@ class HABRCareerResumesMixin:
                 ]
             }
         """
-        path = f"frontend/suggestions/education_centers?term={search}"
-        return self.get(path, key="list")
+        path = "frontend/suggestions/education_centers"
+        return self.get(path, key="list", params={"term": search})

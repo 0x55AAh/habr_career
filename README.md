@@ -85,6 +85,8 @@ client = HABRCareerClient(auth=auth, session_id=session_id)
 
 В отличие от основного токена, сессионный токен генерируется после каждого запроса.
 При этом остается возможность использовать и сгенерированный ранее. Как долго - пока не ясно.
+Но совершенно точно дольше обычного. Поэтому с точки зрения удобства лучше использовать
+именно его.
 
 ## CLI
 
@@ -99,12 +101,12 @@ export HABR_CAREER_TOKEN="Your token here"
 career --version
 career --help
 career conversations list
-career conversations connect --username test_it
-career conversations send --username test_it -m "Давайте завтра в 13.00."
-career users cv -u test_it -p "test_it_cv.pdf"
-career users complain -u test_it --reason spam
+career conversations connect --username testuser
+career conversations send --username testuser -m "Давайте завтра в 13.00."
+career users cv -u testuser -o "testuser_cv.pdf"
+career users complain -u testuser --reason spam
 career friendships list
-career friendships requests approve --username test_it
+career friendships requests approve --username testuser
 career friendships requests --help
 career logout
 ```
@@ -115,7 +117,7 @@ career logout
 - [ ] эксперты (https://career.habr.com/experts)
 - [ ] компании (https://career.habr.com/companies)
 - [x] рейтинг (https://career.habr.com/companies/ratings)
-- [ ] зарплаты (https://career.habr.com/salaries)
+- [x] зарплаты (https://career.habr.com/salaries)
 - [ ] образование (https://career.habr.com/courses)
 - [ ] журнал (https://career.habr.com/journal)
 - [x] переписки (https://career.habr.com/conversations)

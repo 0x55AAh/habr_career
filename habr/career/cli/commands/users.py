@@ -1,5 +1,3 @@
-import os
-
 import click
 from rich import box
 from rich.console import Console
@@ -8,7 +6,7 @@ from habr.career.cli.config import SPINNER, EXPERT_MARK
 from habr.career.cli.utils import (
     process_response_error,
     show_table,
-    build_table,
+    build_table, info, output_as_json,
 )
 from habr.career.client import HABRCareerClient
 from habr.career.client.users import CVFormat
@@ -22,6 +20,11 @@ from habr.career.utils import (
 @click.group("users")
 def cli():
     """Users chapter."""
+
+
+@cli.group("notifications")
+def notifications():
+    """Notifications."""
 
 
 @cli.command("info")
@@ -375,3 +378,33 @@ def complain_on_user(
     console = Console()
     with console.status("Complaining...", spinner=SPINNER):
         client.complain_on_user(username, reason)
+
+
+@notifications.command("counters")
+@click.option(
+    "--json/--no-json", "as_json",
+    default=False,
+    show_default=True,
+    help="",
+)
+@click.pass_obj
+@process_response_error
+def notifications_counters(client: HABRCareerClient, as_json: bool) -> None:
+    """Show notifications counters."""
+    console = Console()
+    with console.status("Loading...", spinner=SPINNER):
+        me = client.user
+
+    counters = me.user.notification_counters
+
+    if as_json:
+        return console.print(
+            output_as_json(
+                notifications_counters=counters,
+            )
+        )
+
+    info(", ".join(
+        f"{k.title()}: {v}"
+        for k, v in counters.model_dump().items()
+    ))

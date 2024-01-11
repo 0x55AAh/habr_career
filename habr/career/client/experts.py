@@ -1,7 +1,7 @@
 from enum import StrEnum, verify, UNIQUE, IntEnum
 from typing import Any
 
-from habr.career.utils import QueryParams, QualificationID, Currency
+from habr.career.utils import QualificationID, Currency
 
 
 @verify(UNIQUE)
@@ -309,7 +309,7 @@ class HABRCareerExpertsMixin:
                 }
             }
         """
-        params = QueryParams({
+        params = {
             "q": search,
             "order": order,
             "rid": request,
@@ -321,6 +321,11 @@ class HABRCareerExpertsMixin:
             "currency": currency,
             "freeOnly": free_only,
             "freeIntro": free_intro,
-        })
-        query = params.query(doseq=True, bool_as_str=True)
-        return self.get(f"frontend_v1/experts?{query}")
+        }
+        return self.get(
+            "frontend_v1/experts",
+            params=params,
+            params_options={
+                "bool_as_str": True,
+            },
+        )

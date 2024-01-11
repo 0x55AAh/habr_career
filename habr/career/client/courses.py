@@ -6,7 +6,6 @@ from habr.career.utils import (
     Pagination,
     Qualification,
     SortDirection,
-    QueryParams,
 )
 
 
@@ -175,7 +174,7 @@ class HABRCareerCoursesMixin:
             }
         """
         sort = sort or Sort(CourseSortField.PRICE, SortDirection.ASC)
-        params = QueryParams({
+        params = {
             "priceCurrency": currency,
             "page": page,
             "perPage": per_page,
@@ -199,9 +198,8 @@ class HABRCareerCoursesMixin:
             "specializations[]": specializations,
 
             "q": search,
-        })
-        query = params.query(doseq=True)
-        return self.get(f"frontend_v1/courses?{query}")
+        }
+        return self.get("frontend_v1/courses", params=params)
 
     def get_course(self, alias: str) -> dict[str, Any]:
         """
@@ -836,8 +834,9 @@ class HABRCareerCoursesMixin:
                ]
             }
         """
-        path = f"frontend_v1/education_platforms/popular?limit={limit}"
-        return self.get(path, key="popularEducationPlatforms")
+        path = "frontend_v1/education_platforms/popular"
+        return self.get(
+            path, key="popularEducationPlatforms", params={"limit": limit})
 
     def get_popular_skills(self, limit: int = 10) -> list[dict[str, str]]:
         """
@@ -870,8 +869,8 @@ class HABRCareerCoursesMixin:
                 ]
             }
         """
-        path = f"frontend_v1/skills/popular?limit={limit}"
-        return self.get(path, key="skills")
+        path = "frontend_v1/skills/popular"
+        return self.get(path, key="skills", params={"limit": limit})
 
     def get_educations_suggestions(self, search: str) -> dict[str, Any]:
         """
@@ -911,7 +910,8 @@ class HABRCareerCoursesMixin:
                 "error": "Internal Server Error"
             }
         """
-        return self.get(f"frontend_v1/suggestions/educations?term={search}")
+        path = "frontend_v1/suggestions/educations"
+        return self.get(path, params={"term": search})
 
     def get_education_platforms_suggestions(
             self,
@@ -939,8 +939,9 @@ class HABRCareerCoursesMixin:
                 ]
             }
         """
-        path = f"frontend_v1/suggestions/education_platforms?term={search}"
-        return self.get(path, key="education_platforms")
+        path = "frontend_v1/suggestions/education_platforms"
+        return self.get(
+            path, key="education_platforms", params={"term": search})
 
     @property
     def courses_count(self) -> int:
@@ -1103,6 +1104,5 @@ class HABRCareerCoursesMixin:
                 "data": {}
             }
         """
-        params = QueryParams({"specializations[]": specializations})
-        query = params.query(doseq=True)
-        return self.get(f"frontend_v1/courses/ld_json?{query}")
+        params = {"specializations[]": specializations}
+        return self.get("frontend_v1/courses/ld_json", params=params)

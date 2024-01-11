@@ -1,7 +1,7 @@
 from enum import StrEnum, verify, UNIQUE
 from typing import Any
 
-from habr.career.utils import Currency, Pagination, QueryParams
+from habr.career.utils import Currency, Pagination
 
 
 @verify(UNIQUE)
@@ -207,7 +207,7 @@ class HABRCareerVacanciesMixin:
                 ]
             }
         """
-        params = QueryParams({
+        params = {
             "sort": sort,
             "type": type_,
             "currency": currency.upper(),
@@ -225,9 +225,14 @@ class HABRCareerVacanciesMixin:
             "exclude_company": exclude_company,
             "locations[]": locations,
             "employment_type": employment_type,
-        })
-        query = params.query(doseq=True, bool_as_str=True)
-        return self.get(f"frontend/vacancies?{query}")
+        }
+        return self.get(
+            "frontend/vacancies",
+            params=params,
+            params_options={
+                "bool_as_str": True,
+            },
+        )
 
     def get_vacancy(self, id_: int) -> dict[str, Any]:
         """
@@ -440,10 +445,9 @@ class HABRCareerVacanciesMixin:
         :return: Examples:
             {"status": "ok"}
         """
-        params = QueryParams({"reactions": reactions})
-        query = params.query(doseq=True)
-        path = f"frontend/vacancies/{id_}/reactions?{query}"
-        return self.post(path, auth_required=True)
+        params = {"reactions": reactions}
+        path = f"frontend/vacancies/{id_}/reactions"
+        return self.post(path, auth_required=True, params=params)
 
     def respond_to_vacancy(self, id_: int) -> dict[str, Any]:
         """

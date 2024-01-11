@@ -111,7 +111,6 @@ class TokenAuthenticator(Authenticator):
             "users/sign_out",
             base_url="https://career.habr.com/",
             data={"_method": "delete"},
-            # headers={"X-Csrf-Token": self.client.logout_token},
             auth_required=True,
         )
 
@@ -132,7 +131,7 @@ class TokenAuthenticator(Authenticator):
 
         # Ensure the token is no longer valid
         try:
-            me = self.client.user
+            self.client.me
         except NotAuthorizedError:
             self.token = None
         else:
@@ -153,6 +152,7 @@ class HABRCareerBaseClient:
         self.auth = auth
         if not auth.is_authenticated():
             self.auth.login()
+
         self._sess = session_id
 
         if debug:
@@ -222,10 +222,8 @@ class HABRCareerBaseClient:
 
         if auth_required:
             if method in self.CSRF_PROTECTED_HTTP_METHODS:
-                # self.set_header(request,
-                #                 "X-Csrf-Token", lambda: self.csrf_token)
                 self.set_header(request,
-                                "X-Csrf-Token", lambda: self.logout_token)
+                                "X-Csrf-Token", lambda: self.csrf_token)
             self.set_cookie(request, "remember_user_token", self.auth.token)
             self.set_cookie(request, "_career_session", self._sess)
 
@@ -317,11 +315,13 @@ class HABRCareerBaseClient:
         For example this token is being used as a CSRF token in conjunction
         with HTTP methods POST, PATCH, DELETE, etc.
         This is not require you to be logged in.
+
+        NOTE:
+            Not working if we use session token or when logging out.
+            So it's better to use logout token as CSRF token.
         """
         path = "frontend_v1/users/authenticity_token"
         return self.get(path, key="token")
-
-    csrf_token = authenticity_token
 
     @property
     def user(self) -> User:
@@ -377,13 +377,16 @@ class HABRCareerBaseClient:
     @property
     def logout_token(self) -> str:
         """
-        Get user token for performing logout operation.
-        Note: this is not the same as authenticity_token but can be used
-              as a csrf_token.
+        This is not the same as authenticity_token but might be used
+        as a CSRF token as well. Moreover, it's recommended to use it
+        as a CSRF token instead of authenticity_token, as it works in
+        all cases.
 
         :return:
         """
         return self.user.meta.logout_token
+
+    csrf_token = logout_token
 
     def logout(self) -> None:
         """Invalidates auth token."""

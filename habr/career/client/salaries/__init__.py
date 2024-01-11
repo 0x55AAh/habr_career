@@ -1,7 +1,13 @@
 from enum import verify, UNIQUE, IntEnum
 from typing import Any
 
-from habr.career.utils import QueryParams, bool_to_str, Qualification
+from habr.career.utils import bool_to_str, Qualification
+from .models import (
+    SalaryGeneralGraph,
+    SalaryDynamicGraph,
+    SalaryChart,
+    MySalary,
+)
 
 
 @verify(UNIQUE)
@@ -14,7 +20,7 @@ class EmploymentType(IntEnum):
 class HABRCareerSalariesMixin:
     """Раздел `Зарплаты`"""
 
-    def my_salary(self) -> dict[str, Any]:
+    def my_salary(self) -> MySalary:
         """
         Get my salary.
 
@@ -42,7 +48,7 @@ class HABRCareerSalariesMixin:
             }
         """
         path = "frontend_v1/salary_calculator/my_salary"
-        return self.get(path, auth_required=True)
+        return self.get(path, cls=MySalary, auth_required=True)
 
     def get_suitable_vacancies(
             self,
@@ -126,7 +132,7 @@ class HABRCareerSalariesMixin:
                 ]
             }
         """
-        params = QueryParams({
+        params = {
             "qualification": qualification,  # TODO: Can be `All`
             "spec_aliases[]": specializations,
             "remote": bool_to_str(remote),
@@ -135,10 +141,13 @@ class HABRCareerSalariesMixin:
             "skills[]": skills,
             "locations[]": locations,
             "exclude_locations": exclude_locations,
-        })
-        query = params.query(doseq=True)
-        path = f"frontend_v1/salary_calculator/suitable_vacancies?{query}"
-        return self.get(path, auth_required=True, key="vacancies")
+        }
+        return self.get(
+            "frontend_v1/salary_calculator/suitable_vacancies",
+            auth_required=True,
+            key="vacancies",
+            params=params,
+        )
 
     def get_suitable_courses(
             self,
@@ -228,12 +237,15 @@ class HABRCareerSalariesMixin:
             }
         """
         # TODO: not sure this is all parameters
-        params = QueryParams({
+        params = {
             "spec_aliases[]": specializations,
-        })
-        query = params.query(doseq=True)
-        path = f"frontend_v1/salary_calculator/suitable_courses?{query}"
-        return self.get(path, auth_required=True, key="courses")
+        }
+        return self.get(
+            "frontend_v1/salary_calculator/suitable_courses",
+            auth_required=True,
+            key="courses",
+            params=params,
+        )
 
     def get_salary_reports(self) -> list[dict[str, str]]:
         """
@@ -279,7 +291,7 @@ class HABRCareerSalariesMixin:
             skills: list[str] | None = None,
             locations: list[str] | None = None,
             exclude_locations: bool | None = None,
-    ) -> dict[str, Any]:
+    ) -> SalaryGeneralGraph:
         """
         Get salary general graph.
 
@@ -414,7 +426,7 @@ class HABRCareerSalariesMixin:
                 ]
             }
         """
-        params = QueryParams({
+        params = {
             "spec_aliases[]": specializations,
             "remote": bool_to_str(remote),
             "employment_type": employment_type,
@@ -422,10 +434,13 @@ class HABRCareerSalariesMixin:
             "skills[]": skills,
             "locations[]": locations,
             "exclude_locations": exclude_locations,
-        })
-        query = params.query(doseq=True)
-        path = f"frontend_v1/salary_calculator/general_graph?{query}"
-        return self.get(path, auth_required=True)
+        }
+        return self.get(
+            "frontend_v1/salary_calculator/general_graph",
+            auth_required=True,
+            cls=SalaryGeneralGraph,
+            params=params,
+        )
 
     def get_salary_dynamic_graph(
             self,
@@ -437,7 +452,7 @@ class HABRCareerSalariesMixin:
             skills: list[str] | None = None,
             locations: list[str] | None = None,
             exclude_locations: bool | None = None,
-    ) -> dict[str, Any]:
+    ) -> SalaryDynamicGraph:
         """
         Get salary dynamic graph.
 
@@ -478,7 +493,7 @@ class HABRCareerSalariesMixin:
                 }
             }
         """
-        params = QueryParams({
+        params = {
             "qualification": qualification,
             "spec_aliases[]": specializations,
             "remote": bool_to_str(remote),
@@ -487,15 +502,18 @@ class HABRCareerSalariesMixin:
             "skills[]": skills,
             "locations[]": locations,
             "exclude_locations": exclude_locations,
-        })
-        query = params.query(doseq=True)
-        path = f"frontend_v1/salary_calculator/dynamic_graph?{query}"
-        return self.get(path, auth_required=True)
+        }
+        return self.get(
+            "frontend_v1/salary_calculator/dynamic_graph",
+            auth_required=True,
+            cls=SalaryDynamicGraph,
+            params=params,
+        )
 
     def get_salary_chart(
             self,
             specialization: str | None = None,
-    ) -> list[dict[str, str]]:
+    ) -> SalaryChart:
         """
         Get salary chart.
 
@@ -548,9 +566,12 @@ class HABRCareerSalariesMixin:
                 "diagramHref": "/salaries?spec_aliases%5B%5D=backend"
             }
         """
-        params = QueryParams({"specialization": specialization})
-        path = f"frontend_v1/salary_chart?{params.query()}"
-        return self.get(path, auth_required=True)
+        return self.get(
+            "frontend_v1/salary_chart",
+            auth_required=True,
+            cls=SalaryChart,
+            params={"specialization": specialization},
+        )
 
     def get_locations_suggestions(self, search: str) -> list[dict[str, str]]:
         """
@@ -569,8 +590,8 @@ class HABRCareerSalariesMixin:
                 ]
             }
         """
-        path = f"frontend_v1/suggestions/locations?q={search}"
-        return self.get(path, key="locations")
+        path = "frontend_v1/suggestions/locations"
+        return self.get(path, key="locations", params={"q": search})
 
     # def get_locations_suggestions(self, search: str) -> list[dict[str, str]]:
     #     """
@@ -590,8 +611,8 @@ class HABRCareerSalariesMixin:
     #             ]
     #         }
     #     """
-    #     path = f"frontend/suggestions/locations?term={search}"
-    #     return self.get(path, key="list")
+    #     path = "frontend/suggestions/locations"
+    #     return self.get(path, key="list", params={"term": search})
 
     def get_companies_suggestions(self, search: str) -> list[dict[str, str]]:
         """
@@ -610,8 +631,8 @@ class HABRCareerSalariesMixin:
                 ]
             }
         """
-        path = f"frontend_v1/suggestions/companies?term={search}"
-        return self.get(path, key="companies")
+        path = "frontend_v1/suggestions/companies"
+        return self.get(path, key="companies", params={"term": search})
 
     # def get_companies_suggestions(self, search: str) -> list[dict[str, Any]]:
     #     """
@@ -634,5 +655,5 @@ class HABRCareerSalariesMixin:
     #             ]
     #         }
     #     """
-    #     path = f"frontend/suggestions/companies?term={search}"
-    #     return self.get(path, key="list")
+    #     path = "frontend/suggestions/companies"
+    #     return self.get(path, key="list", params={"term": search})
