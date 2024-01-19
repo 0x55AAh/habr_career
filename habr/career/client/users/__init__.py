@@ -159,3 +159,6 @@ class HABRCareerUsersMixin:
 
     # TODO: send opinions
     #  https://career.habr.com/nikolskaya-maria-05/opinions/new
+
+    # TODO: User companies
+    #  https://career.habr.com/api/frontend_v1/users/user_companies_with_limits

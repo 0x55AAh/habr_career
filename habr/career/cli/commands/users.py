@@ -6,7 +6,9 @@ from habr.career.cli.config import SPINNER, EXPERT_MARK
 from habr.career.cli.utils import (
     process_response_error,
     show_table,
-    build_table, info, output_as_json,
+    build_table,
+    info,
+    output_as_json,
 )
 from habr.career.client import HABRCareerClient
 from habr.career.client.users import CVFormat
@@ -70,6 +72,12 @@ def notifications():
     default=False,
     help="Show all information about the user.",
 )
+@click.option(
+    "--json/--no-json", "as_json",
+    default=False,
+    show_default=True,
+    help="Vacancy ID.",
+)
 @click.pass_obj
 @process_response_error
 def get_profile(
@@ -82,6 +90,7 @@ def get_profile(
         show_additional_education: bool,
         show_expert: bool,
         show_all: bool,
+        as_json: bool,
 ) -> None:
     """Get arbitrary user profile data."""
     console = Console()
@@ -89,6 +98,10 @@ def get_profile(
     with console.status("Loading...", spinner=SPINNER):
         username = username or client.username
         result = client.get_profile(username)
+
+    if as_json:
+        console.print(output_as_json(profile=result))
+        return
 
     table_width = 100
 
@@ -398,11 +411,9 @@ def notifications_counters(client: HABRCareerClient, as_json: bool) -> None:
     counters = me.user.notification_counters
 
     if as_json:
-        return console.print(
-            output_as_json(
-                notifications_counters=counters,
-            )
-        )
+        console.print(output_as_json(
+            notifications_counters=counters))
+        return
 
     info(", ".join(
         f"{k.title()}: {v}"

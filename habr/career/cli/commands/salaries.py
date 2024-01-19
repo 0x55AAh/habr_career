@@ -1,7 +1,7 @@
 import click
 from rich.console import Console
 
-from habr.career.cli.config import SPINNER
+from habr.career.cli.config import SPINNER, DEFAULT_COLOR
 from habr.career.cli.utils import (
     process_response_error,
     Choice,
@@ -118,12 +118,14 @@ def general_graph(
             )
         )
 
+    my_current_salary = getattr(my_salary_.current_period, "value", None)
+
     chart = Chart(
         data=[
             (graphs_data.min,),
             (graphs_data.p25,),
             (graphs_data.median,),
-            (my_salary_.current_period.value or 0,),
+            (my_current_salary,),
             (graphs_data.p75,),
             (graphs_data.max,)
         ],
@@ -133,7 +135,7 @@ def general_graph(
             "50% зарабатывают меньше",
             "Моя зарплата",
             "75% зарабатывают меньше",
-            "90% зарабатывают меньше"
+            "90% зарабатывают меньше",
         ],
         categories=[
             "Встречаются часто",
@@ -141,20 +143,23 @@ def general_graph(
         ],
         label_styles=(
             "bright_black",  # Встречаются редко
-            "blue",          # Встречаются часто
-            "blue",          # Встречаются часто
+            DEFAULT_COLOR,   # Встречаются часто
+            DEFAULT_COLOR,   # Встречаются часто
             "yellow",        # Моя зарплата
-            "blue",          # Встречаются часто
+            DEFAULT_COLOR,   # Встречаются часто
             "bright_black",  # Встречаются редко
         ),
-        category_styles=("blue", "bright_black"),
+        category_styles=(DEFAULT_COLOR, "bright_black"),
         title="\n".join([
             graphs_data.title,
             f"{graphs_data.salary.total} {CurrencySymbol.RUR}"
             f" = {graphs_data.salary.value} {CurrencySymbol.RUR} (зарплата)"
             f" + {graphs_data.salary.bonus} {CurrencySymbol.RUR} (премия)",
         ]),
-        caption=f"Рассчитано на основании {graphs_data.total} анкет"
+        captions=[
+            f"Рассчитано на основании {graphs_data.total} анкет",
+            "Обновите свою зарплату" if not my_current_salary else "",
+        ],
     )
     console.print(chart)
 
@@ -273,7 +278,7 @@ def dynamic_graph(
             dynamic_graph_.graphs_data.title,
             "Моя зарплата",
         ],
-        category_styles=("green", "yellow"),
+        category_styles=(DEFAULT_COLOR, "yellow"),
         title="Зарплаты в динамике",
     )
     console.print(chart)

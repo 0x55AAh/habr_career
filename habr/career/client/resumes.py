@@ -1,7 +1,7 @@
 from enum import verify, UNIQUE, StrEnum
 from typing import Any
 
-from habr.career.utils import Currency
+from habr.career.utils import Currency, Pagination
 
 
 @verify(UNIQUE)
@@ -67,6 +67,8 @@ class HABRCareerResumesMixin:
             with_experiences: bool | None = None,
             with_salary: bool | None = None,
             with_social_ratings: bool | None = None,
+            page: int = Pagination.INIT_PAGE,
+            per_page: int = Pagination.PER_PAGE,
     ) -> dict[str, Any]:
         """
         Get resumes.
@@ -97,6 +99,8 @@ class HABRCareerResumesMixin:
         :param with_experiences: С опытом работы
         :param with_salary: Указана зарплата
         :param with_social_ratings: Участник ИТ-сообществ
+        :param page:
+        :param per_page:
         :return: Examples:
             {
                 "list": [
@@ -258,6 +262,8 @@ class HABRCareerResumesMixin:
             "with_experiences": with_experiences,
             "with_salary": with_salary,
             "with_social_ratings": with_social_ratings,
+            "page": page,
+            "per_page": per_page,
         }
         return self.get(
             "frontend/resumes",

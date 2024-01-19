@@ -1,7 +1,7 @@
 from enum import StrEnum, verify, UNIQUE, IntEnum
 from typing import Any
 
-from habr.career.utils import QualificationID, Currency
+from habr.career.utils import QualificationID, Currency, Pagination
 
 
 @verify(UNIQUE)
@@ -40,6 +40,8 @@ class HABRCareerExpertsMixin:
             rate_from: int | None = None,
             rate_to: int | None = None,
             request: RequestID | None = None,
+            page: int = Pagination.INIT_PAGE,
+            per_page: int = Pagination.PER_PAGE,
     ) -> dict[str, Any]:
         """
         Get experts data.
@@ -55,6 +57,8 @@ class HABRCareerExpertsMixin:
         :param rate_from:
         :param rate_to:
         :param request:
+        :param page:
+        :param per_page:
         :return: Examples:
             {
                 "list": [
@@ -321,6 +325,8 @@ class HABRCareerExpertsMixin:
             "currency": currency,
             "freeOnly": free_only,
             "freeIntro": free_intro,
+            "page": page,
+            "perPage": per_page,
         }
         return self.get(
             "frontend_v1/experts",

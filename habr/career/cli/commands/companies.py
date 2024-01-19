@@ -170,3 +170,63 @@ def get_companies_ratings(
         caption="\n".join([c for c in captions if c]),
         width=table_width,
     )
+
+
+@cli.command("subscribe")
+@click.option(
+    "-i", "--id", "id_",
+    required=True,
+    help="Company ID.",
+)
+@click.pass_obj
+@process_response_error
+def subscribe(client: HABRCareerClient, id_: str) -> None:
+    """Subscribe company."""
+    console = Console()
+    with console.status("Subscribing...", spinner=SPINNER):
+        client.subscribe_company(id_)
+
+
+@cli.command("unsubscribe")
+@click.option(
+    "-i", "--id", "id_",
+    required=True,
+    help="Company ID.",
+)
+@click.pass_obj
+@process_response_error
+def unsubscribe(client: HABRCareerClient, id_: str) -> None:
+    """Unsubscribe company."""
+    console = Console()
+    with console.status("Unsubscribing...", spinner=SPINNER):
+        client.unsubscribe_company(id_)
+
+
+@cli.command("favorite")
+@click.option(
+    "-i", "--id", "id_",
+    required=True,
+    help="Company ID.",
+)
+@click.pass_obj
+@process_response_error
+def favorite(client: HABRCareerClient, id_: str) -> None:
+    """Add company to favorites list."""
+    console = Console()
+    with console.status("Adding...", spinner=SPINNER):
+        client.favorite_company(id_)
+
+
+@cli.command("unfavorite")
+@click.option(
+    "-i", "--id", "id_",
+    required=True,
+    help="Company ID.",
+)
+@click.pass_obj
+@process_response_error
+def unfavorite(client: HABRCareerClient, id_: str) -> None:
+    """Remove company from favorites list."""
+    console = Console()
+    with console.status("Removing...", spinner=SPINNER):
+        client.unfavorite_company(id_)

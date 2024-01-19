@@ -72,13 +72,11 @@ logout("<Your token here>")
 
 ```python
 import os
-from habr.career.client import HABRCareerClient, TokenAuthenticator
+from habr.career.client import HABRCareerClient
 
-token = os.getenv("HABR_CAREER_TOKEN")
 session_id = os.getenv("HABR_CAREER_SESSION_ID")
 
-auth = TokenAuthenticator(token=token)
-client = HABRCareerClient(auth=auth, session_id=session_id)
+client = HABRCareerClient(session_id=session_id)
 
 # Ваш код
 ```
@@ -112,7 +110,7 @@ career logout
 ```
 
 Реализованы следующие разделы:
-- [ ] вакансии (https://career.habr.com/vacancies)
+- [x] вакансии (https://career.habr.com/vacancies)
 - [ ] специалисты (https://career.habr.com/resumes)
 - [ ] эксперты (https://career.habr.com/experts)
 - [ ] компании (https://career.habr.com/companies)

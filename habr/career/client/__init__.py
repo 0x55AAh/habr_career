@@ -145,13 +145,13 @@ class HABRCareerBaseClient:
 
     def __init__(
             self,
-            auth: Authenticator,
+            auth: Authenticator | None = None,
             session_id: str | None = None,
             debug: bool = False,
     ):
         self.auth = auth
-        if not auth.is_authenticated():
-            self.auth.login()
+        if auth and not auth.is_authenticated():
+            auth.login()
 
         self._sess = session_id
 
@@ -166,7 +166,8 @@ class HABRCareerBaseClient:
     @auth.setter
     def auth(self, value: Authenticator) -> None:
         self._auth = value
-        self._auth.client = self
+        if value is not None:
+            self._auth.client = self
 
     def request(
             self,
@@ -224,7 +225,9 @@ class HABRCareerBaseClient:
             if method in self.CSRF_PROTECTED_HTTP_METHODS:
                 self.set_header(request,
                                 "X-Csrf-Token", lambda: self.csrf_token)
-            self.set_cookie(request, "remember_user_token", self.auth.token)
+            if self.auth:
+                self.set_cookie(request,
+                                "remember_user_token", self.auth.token)
             self.set_cookie(request, "_career_session", self._sess)
 
         response = session.send(request.prepare())
@@ -372,7 +375,7 @@ class HABRCareerBaseClient:
 
         :return:
         """
-        return self.user.user.alias
+        return self.me.user.alias
 
     @property
     def logout_token(self) -> str:
@@ -384,13 +387,14 @@ class HABRCareerBaseClient:
 
         :return:
         """
-        return self.user.meta.logout_token
+        return self.me.meta.logout_token
 
     csrf_token = logout_token
 
     def logout(self) -> None:
         """Invalidates auth token."""
-        self.auth.logout()
+        if self.auth:
+            self.auth.logout()
         self._sess = None
 
 

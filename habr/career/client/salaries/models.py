@@ -77,7 +77,7 @@ class Companies(BaseModel):
 class MySalary(BaseModel):
     periods: list[Period]
     last_salary: LastSalary = Field(alias="lastSalary")
-    current_period: CurrentPeriod = Field(alias="currentPeriod")
+    current_period: CurrentPeriod | Empty = Field(alias="currentPeriod")
     feedback_is_active: bool = Field(alias="feedbackIsActive")
     left_feedback: bool = Field(alias="leftFeedback")
     has_services: bool = Field(alias="hasServices")
@@ -96,4 +96,7 @@ class MySalary(BaseModel):
         value: int
         qualification: str
         specialization: str
+
+    class Empty(BaseModel):
+        pass
 

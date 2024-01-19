@@ -179,6 +179,14 @@ def cleanup_tags(html_code: str, br_replace=True, **kwargs) -> str:
     if br_replace:
         html_code = html_code.replace("<br>", "\n")
     soup = BeautifulSoup(html_code, features="html.parser")
+
+    for p in soup.findAll("p"):
+        p.insert_after("\n")
+
+    for li in soup.findAll("li"):
+        li.insert_after("\n")
+        li.insert_before("— ")
+
     return soup.get_text(**kwargs).strip()
 
 

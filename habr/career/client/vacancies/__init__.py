@@ -1,7 +1,7 @@
 from enum import StrEnum, verify, UNIQUE
 from typing import Any
 
-from habr.career.utils import Currency, Pagination
+from habr.career.utils import Currency, Pagination, QualificationID
 
 
 @verify(UNIQUE)
@@ -36,7 +36,7 @@ class HABRCareerVacanciesMixin:
             specializations: list[int] | None = None,
             locations: list[str] | None = None,
             skills: list[int] | None = None,
-            qualification: int | None = None,
+            qualification: QualificationID | None = None,
             employment_type: EmploymentType | None = None,
             salary: int | None = None,
             company: int | None = None,
@@ -445,7 +445,7 @@ class HABRCareerVacanciesMixin:
         :return: Examples:
             {"status": "ok"}
         """
-        params = {"reactions": reactions}
+        params = {"reactions[]": reactions}
         path = f"frontend/vacancies/{id_}/reactions"
         return self.post(path, auth_required=True, params=params)
 
@@ -728,14 +728,7 @@ class HABRCareerVacanciesMixin:
                                     "companyName": "NDA",
                                     "experience": "2 года и 10 месяцев (по настоящее время)"
                                 },
-                                {
-                                    "companyName": "Disquire",
-                                    "experience": "2 года и 5 месяцев"
-                                },
-                                {
-                                    "companyName": "ICM Consulting",
-                                    "experience": "3 года и 1 месяц"
-                                }
+                                ...
                             ],
                             "isExpert": False,
                             "lastJob": {
@@ -808,14 +801,7 @@ class HABRCareerVacanciesMixin:
                                     "companyName": "NDA",
                                     "experience": "2 года и 10 месяцев (по настоящее время)"
                                 },
-                                {
-                                    "companyName": "Disquire",
-                                    "experience": "2 года и 5 месяцев"
-                                },
-                                {
-                                    "companyName": "ICM Consulting",
-                                    "experience": "3 года и 1 месяц"
-                                }
+                                ...
                             ],
                             "isExpert": False,
                             "lastJob": {
@@ -847,3 +833,5 @@ class HABRCareerVacanciesMixin:
         return self.get(path, auth_required=True)
 
     # TODO: https://career.habr.com/api/frontend/vacancies/programmist_python
+    # TODO: https://career.habr.com/api/frontend/user_vacancy_bans
+    # TODO: https://career.habr.com/api/frontend/quick_responses
