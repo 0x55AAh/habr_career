@@ -168,24 +168,35 @@ def get_ssr_json(html_code: str) -> dict:
     return json.loads(el.get_text())
 
 
-def cleanup_tags(html_code: str, br_replace=True, **kwargs) -> str:
+def cleanup_tags(
+        html_code: str,
+        br_replace=True,
+        p_replace=True,
+        li_replace=True,
+        **kwargs
+) -> str:
     """
     Remove HTML tags from input string.
 
     :param html_code:
     :param br_replace:
+    :param p_replace:
+    :param li_replace:
     :return:
     """
     if br_replace:
         html_code = html_code.replace("<br>", "\n")
+
     soup = BeautifulSoup(html_code, features="html.parser")
 
-    for p in soup.findAll("p"):
-        p.insert_after("\n")
+    if p_replace:
+        for p in soup.findAll("p"):
+            p.insert_after("\n")
 
-    for li in soup.findAll("li"):
-        li.insert_after("\n")
-        li.insert_before("— ")
+    if li_replace:
+        for li in soup.findAll("li"):
+            li.insert_after("\n")
+            li.insert_before("— ")
 
     return soup.get_text(**kwargs).strip()
 
@@ -261,9 +272,9 @@ class CurrencySymbol(StrEnum):
     UAH = "₴"
     KZT = "₸"
 
-    @staticmethod
-    def by_name(name: str) -> CurrencySymbol:
-        return CurrencySymbol.__members__[name.upper()]
+    @classmethod
+    def by_name(cls, name: str) -> Self:
+        return cls.__members__[name.upper()]
 
 
 class Pagination:

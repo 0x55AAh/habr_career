@@ -111,12 +111,13 @@ def general_graph(
     graphs_data = groups[qualification]
 
     if as_json:
-        return console.print(
+        console.print(
             output_as_json(
                 my_salary=my_salary_,
                 graphs_data=graphs_data,
             )
         )
+        return
 
     my_current_salary = getattr(my_salary_.current_period, "value", None)
 

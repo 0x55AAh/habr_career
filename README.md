@@ -1,20 +1,21 @@
-![](logos/logo.svg)
+from habr.career.client.conversations import Conversation![](logos/logo.svg)
 
 ---
 
 Функционал включает следующие разделы веб клиента:
-- [x] вакансии (https://career.habr.com/vacancies)
-- [x] специалисты (https://career.habr.com/resumes)
-- [x] эксперты (https://career.habr.com/experts)
-- [ ] компании (https://career.habr.com/companies)
-- [x] рейтинг (https://career.habr.com/companies/ratings)
-- [x] зарплаты (https://career.habr.com/salaries)
-- [x] образование (https://career.habr.com/courses)
-- [ ] журнал (https://career.habr.com/journal)
-- [x] переписки (https://career.habr.com/conversations)
-- [x] друзья (https://career.habr.com/x55aah/friends)
+- [x] [вакансии](https://career.habr.com/vacancies)
+- [x] [специалисты](https://career.habr.com/resumes)
+- [x] [эксперты](https://career.habr.com/experts)
+- [ ] [компании](https://career.habr.com/companies)
+- [x] [рейтинг](https://career.habr.com/companies/ratings)
+- [x] [зарплаты](https://career.habr.com/salaries)
+- [x] [образование](https://career.habr.com/courses)
+- [ ] [журнал](https://career.habr.com/journal)
+- [x] [переписки](https://career.habr.com/conversations)
+- [x] [друзья](https://career.habr.com/x55aah/friends)
 
-> Клиент не официальный и пока не полон т. к. есть места, где API либо отсутствует, либо сломано.
+> Клиент не официальный и пока не полон т. к. есть места, где API 
+> либо отсутствует, либо сломано.
 
 ## Как этим пользоваться?
 
@@ -45,7 +46,8 @@ with open("my_cv_file.pdf", "wb") as f:
 ## Где взять токен?
 
 Поскольку процесс логина защищен `google recaptcha`, то сначала выполняем вход
-на веб клиенте как обычно через форму. После чего копируем `remember_user_token`, сохраненный в `cookies`.
+на веб клиенте как обычно через форму. После чего копируем `remember_user_token`, 
+сохраненный в `cookies`.
 
 Токены выдаются на 29 дней.
 
@@ -75,7 +77,6 @@ import os
 from habr.career.client import HABRCareerClient
 
 session_id = os.getenv("HABR_CAREER_SESSION_ID")
-
 client = HABRCareerClient(session_id=session_id)
 
 # Ваш код
@@ -110,13 +111,38 @@ career logout
 ```
 
 Реализованы следующие разделы:
-- [x] вакансии (https://career.habr.com/vacancies)
-- [ ] специалисты (https://career.habr.com/resumes)
-- [ ] эксперты (https://career.habr.com/experts)
-- [ ] компании (https://career.habr.com/companies)
-- [x] рейтинг (https://career.habr.com/companies/ratings)
-- [x] зарплаты (https://career.habr.com/salaries)
-- [ ] образование (https://career.habr.com/courses)
-- [ ] журнал (https://career.habr.com/journal)
-- [x] переписки (https://career.habr.com/conversations)
-- [x] друзья (https://career.habr.com/x55aah/friends)
+- [x] [вакансии](https://career.habr.com/vacancies)
+- [ ] [специалисты](https://career.habr.com/resumes)
+- [ ] [эксперты](https://career.habr.com/experts)
+- [ ] [компании](https://career.habr.com/companies)
+- [x] [рейтинг](https://career.habr.com/companies/ratings)
+- [x] [зарплаты](https://career.habr.com/salaries)
+- [ ] [образование](https://career.habr.com/courses)
+- [ ] [журнал](https://career.habr.com/journal)
+- [x] [переписки](https://career.habr.com/conversations)
+- [x] [друзья](https://career.habr.com/x55aah/friends)
+
+## Кому это может быть нужно?
+
+- Во-первых, это любители командной строки.
+Теперь есть возможность искать работу/сотрудников как настоящий IT профессионал =).
+Также есть возможность вести переписку, просматривать статистику заработных плат
+в виде красивых диаграмм и многое другое, что предлагает сервис хабр карьера,
+при этом не покидая любимого терминала. Где-то это даже удобнее, так как
+вы получаете ровно ту информацию, которую запрашиваете, без рекламы и рекомендаций.
+А где-то и менее, в особенности там где есть сложные и многочисленные фильтры.
+
+
+- И тут стоит упомянуть о второй категории людей, кому это может пригодиться - 
+любители все автоматизировать =). Скрипты, отображающие данные в табличной
+форме, также умеют выводить данные в `JSON` формате, который легко прочитать
+сторонним инструментом, таким как `jq` и построить pipeline, который в дальнейшем 
+будет запускаться посредством `CRON` или другим планировщиком.
+
+
+- Тем же хардкорным автоматизаторам, которым и этого окажется мало, есть возможность,
+к примеру, поднять сервис, используя API python клиента, который будет проверять на наличие таких
+событий, как новое сообщение, входящий запрос на добавления в друзья или другие,
+и обрабатывать их в автоматическом режиме, избавляя вас от необходимости мониторить это все вручную.
+Например, можно сразу отправить HRу сообщение где лучше всего с вами связаться, или, выявив среди
+контактов HRа его телегу, написать ему туда ответ в виде приветствия, приложив файл с вашим CV.

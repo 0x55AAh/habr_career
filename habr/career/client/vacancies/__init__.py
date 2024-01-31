@@ -30,6 +30,7 @@ class HABRCareerVacanciesMixin:
 
     def get_vacancies(
             self,
+            *,
             search: str | None = None,
             sort: VacanciesSort | None = VacanciesSort.RELEVANCE,
             type_: VacancyType | None = VacancyType.ALL,
@@ -218,7 +219,7 @@ class HABRCareerVacanciesMixin:
             "skills[]": skills,
             "qid": qualification,
             "salary": salary,
-            "company": company,
+            "company_id": company,
             "with_salary": with_salary,
             "remote": remote,
             "has_accreditation": has_accreditation,

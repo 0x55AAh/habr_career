@@ -2,7 +2,11 @@ import click
 from rich.console import Console
 
 from habr.career.cli.config import SPINNER, EXPERT_MARK
-from habr.career.cli.utils import process_response_error, show_table
+from habr.career.cli.utils import (
+    process_response_error,
+    show_table,
+    output_as_json,
+)
 from habr.career.client import HABRCareerClient
 from habr.career.utils import Pagination, ConcurrentJobs
 
@@ -25,9 +29,19 @@ def requests():
     show_default=True,
     help="",
 )
+@click.option(
+    "--json/--no-json", "as_json",
+    default=False,
+    show_default=True,
+    help="",
+)
 @click.pass_obj
 @process_response_error
-def get_friends(client: HABRCareerClient, page: int) -> None:
+def get_friends(
+        client: HABRCareerClient,
+        page: int,
+        as_json: bool,
+) -> None:
     """Get friends list."""
     console = Console()
     jobs = ConcurrentJobs()
@@ -39,6 +53,15 @@ def get_friends(client: HABRCareerClient, page: int) -> None:
             .register(lambda: client.profile)
             .run()
         )
+
+    if as_json:
+        console.print(
+            output_as_json(
+                friends=friends,
+                me=profile,
+            )
+        )
+        return
 
     friends_count = profile["user"]["friends"]["total"]
 
@@ -76,9 +99,19 @@ def get_friends(client: HABRCareerClient, page: int) -> None:
     show_default=True,
     help="",
 )
+@click.option(
+    "--json/--no-json", "as_json",
+    default=False,
+    show_default=True,
+    help="",
+)
 @click.pass_obj
 @process_response_error
-def get_friendship_requests(client: HABRCareerClient, page: int) -> None:
+def get_friendship_requests(
+        client: HABRCareerClient,
+        page: int,
+        as_json: bool,
+) -> None:
     """Get friendship requests."""
     console = Console()
     jobs = ConcurrentJobs()
@@ -90,6 +123,15 @@ def get_friendship_requests(client: HABRCareerClient, page: int) -> None:
             .register(lambda: client.user)
             .run()
         )
+
+    if as_json:
+        console.print(
+            output_as_json(
+                requests=req,
+                me=me,
+            )
+        )
+        return
 
     requests_count = me.user.notification_counters.friends
 

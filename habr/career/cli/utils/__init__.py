@@ -35,7 +35,12 @@ class Choice(click.Choice):
 
 def truncate_chars(text: str, length: int) -> str:
     text = text.replace("\n", " ")
-    text = cleanup_tags(text, br_replace=False).strip()
+    text = cleanup_tags(
+        text,
+        br_replace=False,
+        p_replace=False,
+        li_replace=False,
+    ).strip()
     if len(text) <= length:
         return text
     else:

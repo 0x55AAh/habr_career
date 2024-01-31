@@ -76,7 +76,7 @@ def notifications():
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="Vacancy ID.",
+    help="",
 )
 @click.pass_obj
 @process_response_error

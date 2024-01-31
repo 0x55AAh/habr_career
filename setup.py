@@ -5,6 +5,8 @@ from habr.career import __version__
 with open("README.md", encoding="utf-8") as f:
     readme = f.read()
 
+tests_requirements = ["parameterized==0.9.0"]
+
 setup(
     author="Lysenko Vladimir",
     author_email="wofkin@gmail.com",
@@ -25,13 +27,16 @@ setup(
     ],
     description="Habr Career python client",
     install_requires=[
-        "beautifulsoup4==4.12.2",
+        "beautifulsoup4==4.12.3",
         "click==8.1.7",
-        "parameterized==0.9.0",
         "requests==2.31.0",
-        "pydantic==2.5.2",
+        "pydantic==2.6.0",
         "rich==13.7.0",
     ],
+    tests_require=tests_requirements,
+    extras_require={
+        "testing": tests_requirements,
+    },
     long_description=readme,
     keywords="habr_career,habr,career",
     name="Habr Career",

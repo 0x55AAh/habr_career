@@ -11,6 +11,7 @@ from habr.career.cli.utils import (
     Choice,
     show_table,
     build_table,
+    output_as_json,
 )
 from habr.career.client import HABRCareerClient
 from habr.career.client.companies import CompanySize, CompanyRatingCriteria
@@ -69,20 +70,26 @@ def cli():
 )
 @click.option(
     "-q", "--search",
-    help="",
+    help="Search query.",
 )
 @click.option(
     "-p", "--page",
     type=int,
     default=Pagination.INIT_PAGE,
     show_default=True,
-    help="",
+    help="Page number.",
 )
 @click.option(
     "--full-scores/--no-full-scores",
     default=False,
     show_default=True,
     help="",
+)
+@click.option(
+    "--json/--no-json", "as_json",
+    default=False,
+    show_default=True,
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error
@@ -94,6 +101,7 @@ def get_companies_ratings(
         search: str,
         page: int,
         full_scores: bool,
+        as_json: bool,
 ) -> None:
     """Get companies ratings."""
     console = Console()
@@ -106,6 +114,10 @@ def get_companies_ratings(
             search=search,
             page=page,
         )
+
+    if as_json:
+        console.print(output_as_json(ratings=result))
+        return
 
     meta = result.meta
     ratings = result.list_
@@ -174,59 +186,59 @@ def get_companies_ratings(
 
 @cli.command("subscribe")
 @click.option(
-    "-i", "--id", "id_",
+    "-i", "--company-id",
     required=True,
     help="Company ID.",
 )
 @click.pass_obj
 @process_response_error
-def subscribe(client: HABRCareerClient, id_: str) -> None:
+def subscribe(client: HABRCareerClient, company_id: str) -> None:
     """Subscribe company."""
     console = Console()
     with console.status("Subscribing...", spinner=SPINNER):
-        client.subscribe_company(id_)
+        client.subscribe_company(company_id)
 
 
 @cli.command("unsubscribe")
 @click.option(
-    "-i", "--id", "id_",
+    "-i", "--company-id",
     required=True,
     help="Company ID.",
 )
 @click.pass_obj
 @process_response_error
-def unsubscribe(client: HABRCareerClient, id_: str) -> None:
+def unsubscribe(client: HABRCareerClient, company_id: str) -> None:
     """Unsubscribe company."""
     console = Console()
     with console.status("Unsubscribing...", spinner=SPINNER):
-        client.unsubscribe_company(id_)
+        client.unsubscribe_company(company_id)
 
 
 @cli.command("favorite")
 @click.option(
-    "-i", "--id", "id_",
+    "-i", "--company-id",
     required=True,
     help="Company ID.",
 )
 @click.pass_obj
 @process_response_error
-def favorite(client: HABRCareerClient, id_: str) -> None:
+def favorite(client: HABRCareerClient, company_id: str) -> None:
     """Add company to favorites list."""
     console = Console()
     with console.status("Adding...", spinner=SPINNER):
-        client.favorite_company(id_)
+        client.favorite_company(company_id)
 
 
 @cli.command("unfavorite")
 @click.option(
-    "-i", "--id", "id_",
+    "-i", "--company-id",
     required=True,
     help="Company ID.",
 )
 @click.pass_obj
 @process_response_error
-def unfavorite(client: HABRCareerClient, id_: str) -> None:
+def unfavorite(client: HABRCareerClient, company_id: str) -> None:
     """Remove company from favorites list."""
     console = Console()
     with console.status("Removing...", spinner=SPINNER):
-        client.unfavorite_company(id_)
+        client.unfavorite_company(company_id)

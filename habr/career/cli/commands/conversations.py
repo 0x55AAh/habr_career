@@ -8,6 +8,7 @@ from habr.career.cli.utils import (
     process_response_error,
     show_table,
     truncate_chars,
+    output_as_json,
 )
 from habr.career.client import HABRCareerClient
 from habr.career.utils import (
@@ -43,12 +44,19 @@ def templates() -> None:
     show_default=True,
     help="",
 )
+@click.option(
+    "--json/--no-json", "as_json",
+    default=False,
+    show_default=True,
+    help="",
+)
 @click.pass_obj
 @process_response_error
 def get_conversations(
         client: HABRCareerClient,
         search: str,
         page: int,
+        as_json: bool,
 ) -> None:
     """Get conversations list."""
     console = Console()
@@ -56,11 +64,15 @@ def get_conversations(
     with console.status("Loading...", spinner=SPINNER):
         conversations = client.get_conversations(search, page)
 
+    if as_json:
+        console.print(output_as_json(conversations=conversations))
+        return
+
     total_count = conversations.meta.total_count
 
     # No conversations
     if not total_count:
-        console.print("[blue]No conversations[/blue]")
+        console.print("[blue]No conversations.[/blue]")
         return
 
     rows = []
@@ -137,9 +149,20 @@ def get_conversations(
     show_default=True,
     help="",
 )
+@click.option(
+    "--json/--no-json", "as_json",
+    default=False,
+    show_default=True,
+    help="",
+)
 @click.pass_obj
 @process_response_error
-def connect(client: HABRCareerClient, username: str, page: int) -> None:
+def connect(
+        client: HABRCareerClient,
+        username: str,
+        page: int,
+        as_json: bool,
+) -> None:
     """Get or create conversation with a specified user."""
     console = Console()
     jobs = ConcurrentJobs()
@@ -153,6 +176,17 @@ def connect(client: HABRCareerClient, username: str, page: int) -> None:
             .register(client.get_conversation_data, username)
             .run()
         )
+
+    if as_json:
+        console.print(
+            output_as_json(
+                conversation=conversation,
+                me=me,
+                other=other,
+                data=data,
+            )
+        )
+        return
 
     messages = conversation.messages.data
     meta = conversation.messages.meta
@@ -345,14 +379,24 @@ def complain_conversation(
 
 
 @templates.command("list")
+@click.option(
+    "--json/--no-json", "as_json",
+    default=False,
+    show_default=True,
+    help="",
+)
 @click.pass_obj
 @process_response_error
-def get_templates(client: HABRCareerClient) -> None:
+def get_templates(client: HABRCareerClient, as_json: bool) -> None:
     """Get all created templates."""
     console = Console()
 
     with console.status("Loading...", spinner=SPINNER):
         result = client.get_templates()
+
+    if as_json:
+        console.print(output_as_json(templates=result.templates))
+        return
 
     show_table(
         console=console,

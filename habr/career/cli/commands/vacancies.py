@@ -6,7 +6,8 @@ from habr.career.cli.config import SPINNER
 from habr.career.cli.utils import (
     process_response_error,
     Choice,
-    output_as_json, show_table,
+    output_as_json,
+    show_table,
 )
 from habr.career.client import HABRCareerClient
 from habr.career.client.vacancies import (
@@ -297,7 +298,7 @@ def get_vacancies(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="Vacancy ID.",
+    help="",
 )
 @click.pass_obj
 @process_response_error

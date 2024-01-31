@@ -75,10 +75,10 @@ class HABRCareerCompaniesRatingsMixin:
         Get companies ratings.
 
         :param year: Covers last previous 5 years.
-        :param size:
+        :param size: Company size.
         :param sort:
-        :param search:
-        :param page:
+        :param search: Search query.
+        :param page: Page number.
         :return: Examples:
             {
                 "list": [
@@ -168,65 +168,65 @@ class HABRCareerCompaniesRatingsMixin:
         # TODO:
         pass
 
-    def subscribe_company(self, id_: str) -> dict[str, bool]:
+    def subscribe_company(self, company_id: str) -> dict[str, bool]:
         """
         Subscribe company.
 
-        :param id_: Company ID
+        :param company_id: Company ID
         :return:
         """
         self.post(
             "profile/company_connections",
             base_url="https://career.habr.com",
-            params={"company_id": id_},
+            params={"company_id": company_id},
             headers={"Accept": "application/javascript"},
             auth_required=True,
         )
         return {"success": True}
 
-    def unsubscribe_company(self, id_: str) -> dict[str, bool]:
+    def unsubscribe_company(self, company_id: str) -> dict[str, bool]:
         """
         Unsubscribe company.
 
-        :param id_: Company ID
+        :param company_id: Company ID
         :return:
         """
         self.delete(
             "profile/company_connections",
             base_url="https://career.habr.com",
-            params={"company_id": id_},
+            params={"company_id": company_id},
             headers={"Accept": "application/javascript"},
             auth_required=True,
         )
         return {"success": True}
 
-    def favorite_company(self, id_: str) -> dict[str, bool]:
+    def favorite_company(self, company_id: str) -> dict[str, bool]:
         """
         Add company to favorites list.
 
-        :param id_: Company ID
+        :param company_id: Company ID
         :return:
         """
         self.post(
             "profile/fav_companies",
             base_url="https://career.habr.com",
-            params={"company_id": id_},
+            params={"company_id": company_id},
             headers={"Accept": "application/javascript"},
             auth_required=True,
         )
         return {"success": True}
 
-    def unfavorite_company(self, id_: str) -> dict[str, bool]:
+    def unfavorite_company(self, company_id: str) -> dict[str, bool]:
         """
         Remove company from favorites list.
 
-        :param id_: Company ID
+        :param company_id: Company ID
         :return:
         """
         self.delete(
             "profile/fav_companies",
             base_url="https://career.habr.com",
-            params={"company_id": id_},
+            params={"company_id": company_id},
             headers={"Accept": "application/javascript"},
             auth_required=True,
         )
