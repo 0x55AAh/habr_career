@@ -1,4 +1,4 @@
-from habr.career.client.conversations import Conversation![](logos/logo.svg)
+![](logos/logo.svg)
 
 ---
 
