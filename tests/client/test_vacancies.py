@@ -36,8 +36,10 @@ class GetVacanciesTestCase(BasicTestCase):
         self.assertIn("meta", result)
         self.assertIn("recommendedQuickVacancies", result)
 
-    def test_pagination(self):
-        page, per_page = 2, 7
+    @parameterized.expand([
+        (2, 7),
+    ])
+    def test_pagination(self, page, per_page):
         result = self.client.get_vacancies(page=page, per_page=per_page)
         self.assertEqual(result["meta"]["perPage"], per_page)
         self.assertEqual(result["meta"]["currentPage"], page)
@@ -51,11 +53,13 @@ class GetVacanciesTestCase(BasicTestCase):
     # def test_filtering_by_query(self):
     #     result = self.client.get_vacancies(search="test")
 
-    def test_filtering_by_specializations(self):
-        backend_developer = 2
-        result = self.client.get_vacancies(specializations=[backend_developer])
+    @parameterized.expand([
+        (2, "Бэкенд разработчик"),
+    ])
+    def test_filtering_by_specializations(self, specialization, label):
+        result = self.client.get_vacancies(specializations=[specialization])
         self.assertTrue(all([
-            "Бэкенд разработчик" in [
+            label in [
                 z["title"] for z in x["divisions"]]
             for x in result["list"]
         ]))
@@ -74,11 +78,13 @@ class GetVacanciesTestCase(BasicTestCase):
             for x in result["list"]
         ])
 
-    def test_filtering_by_skills(self):
-        python = 446
-        result = self.client.get_vacancies(skills=[python])
+    @parameterized.expand([
+        (446, "Python"),
+    ])
+    def test_filtering_by_skills(self, skill, label):
+        result = self.client.get_vacancies(skills=[skill])
         self.assertTrue(all([
-            "Python" in [
+            label in [
                 z["title"] for z in x["skills"]]
             for x in result["list"]
         ]))
@@ -90,27 +96,36 @@ class GetVacanciesTestCase(BasicTestCase):
     # def test_filtering_by_with_salary(self):
     #     result = self.client.get_vacancies(with_salary=True)
 
-    def test_filtering_by_company(self):
-        ivi = 87191269  # Иви
-        result = self.client.get_vacancies(company=ivi, exclude_company=None)
-        self.assertTrue(
-            all([x["company"]["title"] == "Онлайн-кинотеатр Иви"
-                 for x in result["list"]]))
+    @parameterized.expand([
+        (87191269, "Онлайн-кинотеатр Иви"),
+    ])
+    def test_filtering_by_company(self, company, label):
+        result = self.client.get_vacancies(company=company,
+                                           exclude_company=None)
+        self.assertTrue(all([
+            x["company"]["title"] == label
+            for x in result["list"]])
+        )
 
     def test_filtering_by_remote(self):
         result = self.client.get_vacancies(remote=True)
-        self.assertTrue(
-            all([x["remoteWork"] for x in result["list"]]))
+        self.assertTrue(all([
+            x["remoteWork"] for x in result["list"]])
+        )
 
     def test_filtering_by_has_accreditation(self):
         result = self.client.get_vacancies(has_accreditation=True)
-        self.assertTrue(
-            all([x["company"]["accredited"] for x in result["list"]]))
-
-    def test_filtering_by_locations(self):
-        result = self.client.get_vacancies(locations=["c_707"])  # Краснодар
         self.assertTrue(all([
-            "Краснодар" in [
+            x["company"]["accredited"] for x in result["list"]])
+        )
+
+    @parameterized.expand([
+        ("c_707", "Краснодар"),
+    ])
+    def test_filtering_by_locations(self, location, label):
+        result = self.client.get_vacancies(locations=[location])
+        self.assertTrue(all([
+            label in [
                 z["title"] for z in x["locations"]]
             for x in result["list"]
         ]))
@@ -121,6 +136,7 @@ class GetVacanciesTestCase(BasicTestCase):
     ])
     def test_filtering_by_employment_type(self, employment_type):
         result = self.client.get_vacancies(employment_type=employment_type)
-        self.assertTrue(
-            all([x["employment"] == str(employment_type)
-                 for x in result["list"]]))
+        self.assertTrue(all([
+            x["employment"] == str(employment_type)
+            for x in result["list"]])
+        )

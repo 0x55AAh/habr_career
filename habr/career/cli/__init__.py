@@ -68,7 +68,7 @@ def logout(client: HABRCareerClient) -> None:
 main.add_command(cast(Command, companies.cli))
 main.add_command(cast(Command, conversations.cli))
 # main.add_command(cast(Command, courses.cli))
-# main.add_command(cast(Command, experts.cli))
+main.add_command(cast(Command, experts.cli))
 main.add_command(cast(Command, friendships.cli))
 # main.add_command(cast(Command, resumes.cli))
 main.add_command(cast(Command, salaries.cli))
