@@ -35,20 +35,20 @@ def templates() -> None:
 @cli.command("list")
 @click.option(
     "-q", "--search",
-    help="",
+    help="Search query.",
 )
 @click.option(
     "-p", "--page",
     type=int,
     default=Pagination.INIT_PAGE,
     show_default=True,
-    help="",
+    help="Page number.",
 )
 @click.option(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error
@@ -140,20 +140,20 @@ def get_conversations(
 @click.option(
     "-u", "--username",
     required=True,
-    help="",
+    help="User alias.",
 )
 @click.option(
     "-p", "--page",
     type=int,
     default=Pagination.INIT_PAGE,
     show_default=True,
-    help="",
+    help="Page number.",
 )
 @click.option(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error
@@ -253,7 +253,7 @@ def connect(
 @click.option(
     "-u", "--username",
     required=True,
-    help="",
+    help="User alias.",
 )
 @click.pass_obj
 @process_response_error
@@ -268,15 +268,15 @@ def disconnect(client: HABRCareerClient, username: str) -> None:
 @click.option(
     "-u", "--username",
     required=True,
-    help="",
+    help="User alias.",
 )
 @click.option(
     "-m", "--message",
-    help="",
+    help="Message body.",
 )
 @click.option(
     "-t", "--template-id", "template_id",
-    help="",
+    help="Template ID.",
 )
 @click.pass_obj
 @process_response_error
@@ -312,7 +312,7 @@ def send_message(
 @click.option(
     "-u", "--username",
     required=True,
-    help="",
+    help="User alias.",
 )
 @click.pass_obj
 @process_response_error
@@ -333,12 +333,12 @@ def unread_conversation(client: HABRCareerClient, username: str) -> None:
 @click.option(
     "-u", "--username",
     required=True,
-    help="",
+    help="User alias.",
 )
 @click.option(
     "-s", "--subject",
     required=True,
-    help="",
+    help="New subject.",
 )
 @click.pass_obj
 @process_response_error
@@ -357,13 +357,22 @@ def change_conversation_subject(
 @click.option(
     "-u", "--username",
     required=True,
-    help="",
+    help="User alias.",
 )
 @click.option(
     "-r", "--reason",
     type=click.Choice(ComplainReason),
     required=True,
-    help="",
+    help="""\b
+    prohibited:  Профиль содержит запрещенный контент
+    ads:         Профиль содержит одну рекламу
+    impersonate: Выдает себя за другого
+    spam:        Рассылает спам
+    insult:      Ведет себя оскорбительно
+    other:       Другое
+    
+    Причина жалобы.
+    """,
 )
 @click.pass_obj
 @process_response_error
@@ -383,7 +392,7 @@ def complain_conversation(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error
@@ -416,12 +425,12 @@ def get_templates(client: HABRCareerClient, as_json: bool) -> None:
 @click.option(
     "-t", "--title",
     required=True,
-    help="",
+    help="Template title.",
 )
 @click.option(
     "-b", "--body",
     required=True,
-    help="",
+    help="Template body.",
 )
 @click.pass_obj
 @process_response_error
@@ -437,7 +446,7 @@ def create_template(client: HABRCareerClient, title: str, body: str) -> None:
     "-i", "--id", "id_",
     type=int,
     required=True,
-    help="",
+    help="Template ID.",
 )
 @click.pass_obj
 @process_response_error
@@ -453,15 +462,15 @@ def delete_template(client: HABRCareerClient, id_: int) -> None:
     "-i", "--id", "id_",
     type=int,
     required=True,
-    help="",
+    help="Template ID.",
 )
 @click.option(
     "-t", "--title",
-    help="",
+    help="New template title.",
 )
 @click.option(
     "-b", "--body",
-    help="",
+    help="New template body.",
 )
 @click.pass_obj
 @process_response_error

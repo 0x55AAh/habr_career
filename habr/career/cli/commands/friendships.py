@@ -27,13 +27,13 @@ def requests():
     type=int,
     default=Pagination.INIT_PAGE,
     show_default=True,
-    help="",
+    help="Page number.",
 )
 @click.option(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error
@@ -97,13 +97,13 @@ def get_friends(
     type=int,
     default=Pagination.INIT_PAGE,
     show_default=True,
-    help="",
+    help="Page number.",
 )
 @click.option(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error
@@ -165,7 +165,7 @@ def get_friendship_requests(
 @click.option(
     "-u", "--username",
     required=True,
-    help="",
+    help="User alias.",
 )
 @click.pass_obj
 @process_response_error
@@ -180,7 +180,7 @@ def approve_friend(client: HABRCareerClient, username: str) -> None:
 @click.option(
     "-u", "--username",
     required=True,
-    help="",
+    help="User alias.",
 )
 @click.pass_obj
 @process_response_error
@@ -195,7 +195,7 @@ def reject_friend(client: HABRCareerClient, username: str) -> None:
 @click.option(
     "-u", "--username",
     required=True,
-    help="",
+    help="User alias.",
 )
 @click.pass_obj
 @process_response_error
@@ -210,7 +210,7 @@ def request_new_friendship(client: HABRCareerClient, username: str) -> None:
 @click.option(
     "-u", "--username",
     required=True,
-    help="",
+    help="User alias.",
 )
 @click.pass_obj
 @process_response_error
@@ -225,7 +225,7 @@ def cancel_pending_friendship(client: HABRCareerClient, username: str) -> None:
 @click.option(
     "-u", "--username",
     required=True,
-    help="",
+    help="User alias.",
 )
 @click.pass_obj
 @process_response_error

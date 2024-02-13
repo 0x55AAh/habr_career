@@ -1,4 +1,4 @@
-from enum import verify, UNIQUE, IntEnum
+from enum import verify, UNIQUE, StrEnum
 from typing import Any
 
 from habr.career.utils import bool_to_str, Qualification
@@ -11,9 +11,9 @@ from .models import (
 
 
 @verify(UNIQUE)
-class EmploymentType(IntEnum):
-    FULL_TIME = 0
-    PART_TIME = 1
+class EmploymentType(StrEnum):
+    FULL_TIME = "0"
+    PART_TIME = "1"
 
 
 # noinspection PyUnresolvedReferences

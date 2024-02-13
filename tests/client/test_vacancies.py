@@ -59,8 +59,7 @@ class GetVacanciesTestCase(BasicTestCase):
     def test_filtering_by_specializations(self, specialization, label):
         result = self.client.get_vacancies(specializations=[specialization])
         self.assertTrue(all([
-            label in [
-                z["title"] for z in x["divisions"]]
+            label in [z["title"] for z in x["divisions"]]
             for x in result["list"]
         ]))
 
@@ -84,8 +83,7 @@ class GetVacanciesTestCase(BasicTestCase):
     def test_filtering_by_skills(self, skill, label):
         result = self.client.get_vacancies(skills=[skill])
         self.assertTrue(all([
-            label in [
-                z["title"] for z in x["skills"]]
+            label in [z["title"] for z in x["skills"]]
             for x in result["list"]
         ]))
 

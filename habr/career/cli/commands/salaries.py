@@ -4,7 +4,6 @@ from rich.console import Console
 from habr.career.cli.config import SPINNER, DEFAULT_COLOR
 from habr.career.cli.utils import (
     process_response_error,
-    Choice,
     output_as_json,
 )
 from habr.career.cli.utils.chart import Chart
@@ -39,7 +38,7 @@ def cli():
 )
 @click.option(
     "-e", "--employment_type",
-    type=Choice(EmploymentType),
+    type=click.Choice(EmploymentType),
     help="""\b
     0: Full time
     1: Part time
@@ -186,7 +185,7 @@ def general_graph(
 )
 @click.option(
     "-e", "--employment_type",
-    type=Choice(EmploymentType),
+    type=click.Choice(EmploymentType),
     help="""\b
     0: Full time
     1: Part time

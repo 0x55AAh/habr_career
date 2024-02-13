@@ -1,7 +1,8 @@
 from enum import verify, UNIQUE, StrEnum
 from typing import Any
 
-from habr.career.utils import Currency, Pagination
+from habr.career.utils import Currency, Pagination, QualificationID
+from .models import Resumes
 
 
 @verify(UNIQUE)
@@ -14,13 +15,16 @@ class CareerSortingCriteria(StrEnum):
 
 @verify(UNIQUE)
 class CareerActivityPeriod(StrEnum):
+    """Активность на сайте."""
     TWO_YEARS = "two_years"        # За 2 года
     YEAR = "year"                  # За 1 год
+    HALF_YEAR = "half_year"        # За 6 месяцев
     THREE_MONTHS = "three_months"  # За 3 месяца
 
 
 @verify(UNIQUE)
 class CareerWorkState(StrEnum):
+    """Готовность к работе."""
     NOT_SEARCH = "not_search"  # Не ищу работу
     SEARCH = "search"          # Ищу работу
     READY = "ready"            # Рассмотрю предложения
@@ -41,11 +45,12 @@ class HABRCareerResumesMixin:
 
     def get_resumes(
             self,
+            *,
             search: str | None = None,
             search_fields: list[CareerSearchField] | None = None,
             sort: CareerSortingCriteria | None = None,
             specializations: list[int] | None = None,
-            qualification: int | None = None,
+            qualification: QualificationID | None = None,
             skills: list[int] | None = None,
             salary: int | None = None,
             currency: Currency | None = Currency.RUR,
@@ -69,38 +74,38 @@ class HABRCareerResumesMixin:
             with_social_ratings: bool | None = None,
             page: int = Pagination.INIT_PAGE,
             per_page: int = Pagination.PER_PAGE,
-    ) -> dict[str, Any]:
+    ) -> Resumes:
         """
         Get resumes.
 
-        :param search:
-        :param search_fields:
-        :param sort:
-        :param specializations:
-        :param qualification:
-        :param skills:
-        :param salary:
-        :param currency:
-        :param locations:
-        :param exclude_locations:
-        :param companies:
-        :param not_companies:
-        :param current_company:
-        :param universities:
-        :param not_universities:
-        :param educations:
-        :param not_educations:
-        :param work_state:
-        :param relocation:
-        :param remote:
-        :param period:
+        :param search: Search query.
+        :param search_fields: Поиск по полям.
+        :param sort: Сортировка.
+        :param specializations: Специализация.
+        :param qualification: Квалификация.
+        :param skills: Профессиональные навыки.
+        :param salary: Вознаграждение.
+        :param currency: Валюта вознаграждения.
+        :param locations: Местоположение.
+        :param exclude_locations: Исключить местоположение.
+        :param companies: Компания.
+        :param not_companies: Исключить компанию.
+        :param current_company: Текущее место работы.
+        :param universities: Высшее образование.
+        :param not_universities: Исключить из поиска высшее образование.
+        :param educations: Доп образование.
+        :param not_educations: Исключить из поиска доп образование.
+        :param work_state: Готовность к работе.
+        :param relocation: Готов к переезду.
+        :param remote: Готов к удалённой работе.
+        :param period: Активность на сайте.
         :param with_educations: С высшим образованием
         :param with_extra_educations: С дополнительным образованием
         :param with_experiences: С опытом работы
         :param with_salary: Указана зарплата
         :param with_social_ratings: Участник ИТ-сообществ
-        :param page:
-        :param per_page:
+        :param page: Page number.
+        :param per_page: Items per page.
         :return: Examples:
             {
                 "list": [
@@ -145,36 +150,7 @@ class HABRCareerResumesMixin:
                                 "href": "/resumes?skills%5B%5D=352",
                                 "value": 352
                             },
-                            {
-                                "title": "Проведение интервью",
-                                "href": "/resumes?skills%5B%5D=71",
-                                "value": 71
-                            },
-                            {
-                                "title": "Работа в команде",
-                                "href": "/resumes?skills%5B%5D=638",
-                                "value": 638
-                            },
-                            {
-                                "title": "Консультирование",
-                                "href": "/resumes?skills%5B%5D=884",
-                                "value": 884
-                            },
-                            {
-                                "title": "Подбор руководителей",
-                                "href": "/resumes?skills%5B%5D=882",
-                                "value": 882
-                            },
-                            {
-                                "title": "Консультирование по подбору персонала",
-                                "href": "/resumes?skills%5B%5D=790",
-                                "value": 790
-                            },
-                            {
-                                "title": "Обучение персонала",
-                                "href": "/resumes?skills%5B%5D=518",
-                                "value": 518
-                            }
+                            ...
                         ],
                         "age": {
                             "title": "35 лет",
@@ -207,21 +183,34 @@ class HABRCareerResumesMixin:
                                 "value": 57
                             }
                         },
-                        "additionalEducation": [],
-                        "communities": [],
+                        "additionalEducation": [
+                            {
+                                "title": "Университет 20.35",
+                                "href": "/education_centers/209-universitet-20-35"
+                            },
+                            ...
+                        ],
+                        "communities": [
+                            {
+                                "title": "GitHub",
+                                "name": "github",
+                                "icon": "github",
+                                "href": "https://github.com/ealipkin"
+                            },
+                            ...
+                        ],
+                        "companiesCount": "2 компании",
+                        "companiesHistory": [],
                         "coworkers": [],
                         "specializations": [
-                            {
-                                "title": "Менеджер по персоналу"
-                            },
-                            {
-                                "title": "Менеджер по найму"
-                            }
+                            {"title": "Менеджер по персоналу"},
+                            {"title": "Менеджер по найму"}
                         ],
                         "gender": 1,
                         "isExpert": False,
                         "moreUniversityCount": 0
                     },
+                    ...
                 ],
                 "meta": {
                     "totalResults": 494923,
@@ -271,6 +260,8 @@ class HABRCareerResumesMixin:
             params_options={
                 "bool_as_str": True,
             },
+            cls=Resumes,
+            auth_required=True,
         )
 
     def get_resumes_data(
@@ -889,7 +880,7 @@ class HABRCareerResumesMixin:
         filter_data = _filters[id_]
         return self._career_filter_data_to_params(filter_data)
 
-    def apply_career_filter(self, id_: int) -> dict[str, Any]:
+    def apply_career_filter(self, id_: int, **kwargs) -> Resumes:
         """
         Apply saved filer by filter ID.
 
@@ -899,26 +890,12 @@ class HABRCareerResumesMixin:
         params = self._career_filter_to_params(id_)
         return self.get(
             "frontend/resumes",
-            params=params,
+            params={**params, **kwargs},
             params_options={
                 "bool_as_str": True,
             },
-        )
-
-    def apply_career_filter_data(self, filter_data: dict) -> dict[str, Any]:
-        """
-        Apply saved filer by filter data.
-
-        :param filter_data:
-        :return:
-        """
-        params = self._career_filter_data_to_params(filter_data)
-        return self.get(
-            "frontend/resumes",
-            params=params,
-            params_options={
-                "bool_as_str": True,
-            },
+            cls=Resumes,
+            auth_required=True,
         )
 
     def delete_careers_filter(self, id_: int) -> dict[str, str | int]:

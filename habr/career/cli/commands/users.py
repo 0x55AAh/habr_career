@@ -76,7 +76,7 @@ def notifications():
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error
@@ -327,20 +327,20 @@ def get_profile(
 @cli.command("cv")
 @click.option(
     "-u", "--username",
-    help="",
+    help="User alias.",
 )
 @click.option(
     "-f", "--format", "fmt",
     type=click.Choice(CVFormat),
     default=CVFormat.PDF,
     show_default=True,
-    help="",
+    help="CV format.",
 )
 @click.option(
     "-o", "--output",
     type=click.Path(writable=True, resolve_path=True, dir_okay=False),
     required=True,
-    help="",
+    help="Filename.",
 )
 @click.pass_obj
 @process_response_error
@@ -357,11 +357,6 @@ def get_cv(
         username = username or client.username
         data = client.get_cv(username, fmt)
 
-    # try:
-    #     os.makedirs(os.path.dirname(path))
-    # except FileExistsError:
-    #     pass
-
     with click.open_file(output, "wb") as f:
         f.write(data)
 
@@ -372,13 +367,22 @@ def get_cv(
 @click.option(
     "-u", "--username",
     required=True,
-    help="",
+    help="User alias.",
 )
 @click.option(
     "-r", "--reason",
     type=click.Choice(ComplainReason),
     required=True,
-    help="",
+    help="""\b
+    prohibited:  Профиль содержит запрещенный контент
+    ads:         Профиль содержит одну рекламу
+    impersonate: Выдает себя за другого
+    spam:        Рассылает спам
+    insult:      Ведет себя оскорбительно
+    other:       Другое
+    
+    Причина жалобы.
+    """,
 )
 @click.pass_obj
 @process_response_error
@@ -398,7 +402,7 @@ def complain_on_user(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error

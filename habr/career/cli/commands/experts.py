@@ -7,7 +7,6 @@ from habr.career.cli.config import SPINNER
 from habr.career.cli.utils import (
     process_response_error,
     output_as_json,
-    Choice,
     show_table,
     build_table,
 )
@@ -36,41 +35,45 @@ def cli():
     lastActive: По дате визита
     rate_desc: Цена по убыванию
     rate_asc: Цена по возрастанию
+    
+    Сортировка.
     """,
 )
 @click.option(
     "-O", "--free-only",
     is_flag=True,
     default=None,
-    help="",
+    help="Бесплатно.",
 )
 @click.option(
     "-F", "--free-intro",
     is_flag=True,
     default=None,
-    help="",
+    help="Первая встреча бесплатно.",
 )
 @click.option(
     "-S", "--skills",
     multiple=True,
     type=int,
-    help="",
+    help="Какие навыки вы хотите развить.",
 )
 @click.option(
     "-Z", "--specializations",
     multiple=True,
     type=int,
-    help="",
+    help="Специализация.",
 )
 @click.option(
     "-Q", "--qualification",
-    type=Choice(QualificationID),
+    type=click.Choice(QualificationID),
     help="""\b
     1: Intern
     3: Junior
     4: Middle
     5: Senior
     6: Lead
+    
+    Ваша квалификация.
     """,
 )
 @click.option(
@@ -78,21 +81,21 @@ def cli():
     type=click.Choice(Currency),
     default=Currency.RUR,
     show_default=True,
-    help="",
+    help="Валюта.",
 )
 @click.option(
     "-f", "--rate-from",
     type=int,
-    help="",
+    help="Стоимость часа от.",
 )
 @click.option(
     "-t", "--rate-to",
     type=int,
-    help="",
+    help="Стоимость часа до.",
 )
 @click.option(
     "-r", "--request",
-    type=Choice(RequestID),
+    type=click.Choice(RequestID),
     help="""\b
     1: Начало карьеры или смена профессии
     2: Развитие навыков
@@ -102,6 +105,8 @@ def cli():
     6: Помощь с задачей
     7: Поддержка и коучинг
     8: Карьера за рубежом
+    
+    Ваш запрос.
     """,
 )
 @click.option(
@@ -113,20 +118,20 @@ def cli():
     type=int,
     default=Pagination.INIT_PAGE,
     show_default=True,
-    help="",
+    help="Page number.",
 )
 @click.option(
     "-P", "--per-page",
     type=int,
     default=Pagination.PER_PAGE,
     show_default=True,
-    help="",
+    help="Items per page.",
 )
 @click.option(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error
@@ -308,7 +313,7 @@ def get_experts(
 
         del table_rows[-1]
 
-        multiple_tables = build_table(
+        summary_table = build_table(
             rows=table_rows,
             box_=box.SIMPLE,
             show_edge=False,
@@ -320,7 +325,7 @@ def get_experts(
                 Text(username, style="bright_black"),
                 Text(last_visited),
             ]),
-            multiple_tables,
+            summary_table,
         ])
 
     show_table(

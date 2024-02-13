@@ -241,12 +241,12 @@ class Qualification(StrEnum):
 
 
 @verify(UNIQUE)
-class QualificationID(IntEnum):
-    INTERN = 1
-    JUNIOR = 3
-    MIDDLE = 4
-    SENIOR = 5
-    LEAD = 6
+class QualificationID(StrEnum):
+    INTERN = "1"
+    JUNIOR = "3"
+    MIDDLE = "4"
+    SENIOR = "5"
+    LEAD = "6"
 
 
 @verify(UNIQUE)
@@ -292,3 +292,9 @@ class ComplainReason(StrEnum):
     SPAM = "spam"                # Рассылает спам
     INSULT = "insult"            # Ведет себя оскорбительно
     OTHER = "other"              # Другое
+
+
+@verify(UNIQUE)
+class Gender(IntEnum):
+    MAN = 0
+    WOMAN = 1

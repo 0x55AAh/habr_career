@@ -5,7 +5,6 @@ from rich.text import Text
 from habr.career.cli.config import SPINNER
 from habr.career.cli.utils import (
     process_response_error,
-    Choice,
     output_as_json,
     show_table,
 )
@@ -18,7 +17,8 @@ from habr.career.client.vacancies import (
 from habr.career.utils import (
     Pagination,
     QualificationID,
-    Currency, cleanup_tags,
+    Currency,
+    cleanup_tags,
 )
 
 
@@ -48,112 +48,131 @@ def reactions_():
     type=click.Choice(VacanciesSort),
     default=VacanciesSort.RELEVANCE,
     show_default=True,
-    help="",
+    help="""\b
+    relevance: По соответствию (default)
+    date: По дате размещения
+    salary_desc: По убыванию зарплаты
+    salary_asc: По возрастанию зарплаты
+    
+    Сортировка.
+    """,
 )
 @click.option(
     "-t", "--type", "type_",
     type=click.Choice(VacancyType),
     default=VacancyType.ALL,
     show_default=True,
-    help="",
+    help="""\b
+    all: Все вакансии (default)
+    suitable: Подходящие
+    
+    Категория.
+    """,
 )
 @click.option(
     "-E", "--employment-type",
     type=click.Choice(EmploymentType),
-    help="",
+    help="""\b
+    full_time: Полный рабочий день
+    part_time: Неполный рабочий день
+    
+    Тип занятости.
+    """,
 )
 @click.option(
     "-C", "--currency",
     type=click.Choice(Currency),
     default=Currency.RUR,
     show_default=True,
-    help="",
+    help="Валюта.",
 )
 @click.option(
     "-Z", "--specializations",
     multiple=True,
     type=int,
-    help="",
+    help="Специализация.",
 )
 @click.option(
     "-L", "--locations",
     multiple=True,
-    help="",
+    help="Местоположение.",
 )
 @click.option(
     "-e", "--exclude-company",
     is_flag=True,
     default=None,
-    help="",
+    help="Исключить из поиска компанию.",
 )
 @click.option(
     "-H", "--has-accreditation",
     is_flag=True,
     default=None,
-    help="",
+    help="Аккредитованные ИТ-компании.",
 )
 @click.option(
     "-w", "--with-salary",
     is_flag=True,
     default=None,
-    help="",
+    help="Указана зарплата.",
 )
 @click.option(
     "-s", "--salary",
     type=int,
-    help="",
+    help="Зарплата от.",
 )
 @click.option(
     "-Q", "--qualification",
-    type=Choice(QualificationID),
+    type=click.Choice(QualificationID),
     help="""\b
     1: Intern
     3: Junior
     4: Middle
     5: Senior
     6: Lead
+    
+    Квалификация.
     """,
 )
 @click.option(
     "-S", "--skills",
     multiple=True,
     type=int,
-    help="",
+    help="Профессиональные навыки.",
 )
 @click.option(
     "-c", "--company",
     type=int,
-    help="",
+    help="Компания.",
 )
 @click.option(
     "-r", "--remote",
     is_flag=True,
     default=None,
-    help="",
+    help="Можно удалённо.",
 )
 @click.option(
     "-q", "--search",
-    help="",
+    help="Search query.",
 )
 @click.option(
     "-p", "--page",
     type=int,
     default=Pagination.INIT_PAGE,
     show_default=True,
-    help="",
+    help="Page number.",
 )
 @click.option(
     "-P", "--per-page",
     type=int,
     default=Pagination.PER_PAGE,
     show_default=True,
-    help="",
+    help="Items per page.",
 )
 @click.option(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error
@@ -292,13 +311,13 @@ def get_vacancies(
     "-i", "--id", "id_",
     type=int,
     required=True,
-    help="",
+    help="Vacancy ID.",
 )
 @click.option(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error
@@ -582,7 +601,7 @@ def update_response_to_vacancy(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error
@@ -642,7 +661,7 @@ def get_vacancy_responses(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error
@@ -700,7 +719,7 @@ def get_vacancy_favorite_responses(
     "--json/--no-json", "as_json",
     default=False,
     show_default=True,
-    help="",
+    help="Show as JSON.",
 )
 @click.pass_obj
 @process_response_error

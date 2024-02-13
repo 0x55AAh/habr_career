@@ -1,22 +1,22 @@
 from datetime import datetime
-from enum import verify, UNIQUE, IntEnum, StrEnum
+from enum import verify, UNIQUE, StrEnum
 
 from habr.career.utils import Pagination
 from .models import Ratings
 
 
 @verify(UNIQUE)
-class CompanySize(IntEnum):
+class CompanySize(StrEnum):
     """
     HUGE:   Over 5000
     BIG:    1000 - 5000
     MEDIUM: 100 - 1000
     SMALL:  10 - 100
     """
-    HUGE = 5    # > 5000
-    BIG = 4     # 1000 - 5000
-    MEDIUM = 3  # 100 - 1000
-    SMALL = 2   # 10 - 100
+    HUGE = "5"    # > 5000
+    BIG = "4"     # 1000 - 5000
+    MEDIUM = "3"  # 100 - 1000
+    SMALL = "2"   # 10 - 100
 
 
 @verify(UNIQUE)

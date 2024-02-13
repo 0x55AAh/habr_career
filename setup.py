@@ -30,7 +30,7 @@ setup(
         "beautifulsoup4==4.12.3",
         "click==8.1.7",
         "requests==2.31.0",
-        "pydantic==2.6.0",
+        "pydantic==2.6.1",
         "rich==13.7.0",
     ],
     tests_require=tests_requirements,

@@ -21,18 +21,6 @@ def output_as_json(indent: int = 4, **kwargs) -> str:
     return model().model_dump_json(indent=indent)
 
 
-class Choice(click.Choice):
-    def get_metavar(self, param) -> str:
-        choices_str = "|".join(map(str, self.choices))
-
-        # Use curly braces to indicate a required argument.
-        if param.required and param.param_type_name == "argument":
-            return f"{{{choices_str}}}"
-
-        # Use square braces to indicate an option or optional argument.
-        return f"[{choices_str}]"
-
-
 def truncate_chars(text: str, length: int) -> str:
     text = text.replace("\n", " ")
     text = cleanup_tags(

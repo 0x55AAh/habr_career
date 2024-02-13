@@ -8,7 +8,6 @@ from rich.table import Table
 from habr.career.cli.config import SPINNER
 from habr.career.cli.utils import (
     process_response_error,
-    Choice,
     show_table,
     build_table,
     output_as_json,
@@ -33,7 +32,7 @@ def cli():
 )
 @click.option(
     "-s", "--size",
-    type=Choice(CompanySize),
+    type=click.Choice(CompanySize),
     default=CompanySize.HUGE,
     show_default=True,
     help="""\b
